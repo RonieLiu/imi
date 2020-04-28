@@ -1,24 +1,26 @@
 <?php
+
 namespace Imi;
 
 use Imi\Event\Event;
-use Imi\Bean\Container;
 use Imi\Util\Coroutine;
 
 abstract class RequestContext
 {
     /**
-     * 上下文集合
+     * 上下文集合.
      *
      * @var array
      */
     private static $context = [];
 
     /**
-     * 为当前请求创建上下文，返回当前协程ID
-     * 
+     * 为当前请求创建上下文，返回当前协程ID.
+     *
      * @param array $data
+     *
      * @return int
+     *
      * @deprecated 1.0.17
      */
     public static function create(array $data = [])
@@ -27,8 +29,10 @@ abstract class RequestContext
     }
 
     /**
-     * 销毁当前请求的上下文
+     * 销毁当前请求的上下文.
+     *
      * @return void
+     *
      * @deprecated 1.0.17
      */
     public static function destroy()
@@ -36,71 +40,71 @@ abstract class RequestContext
     }
 
     /**
-     * 判断当前请求上下文是否存在
-     * @return boolean
+     * 判断当前请求上下文是否存在.
+     *
+     * @return bool
+     *
      * @deprecated 1.0.17
      */
     public static function exists()
     {
         return true;
     }
-    
+
     /**
-     * 销毁当前请求的上下文
+     * 销毁当前请求的上下文.
+     *
      * @return void
      */
     private static function __destroy()
     {
         Event::trigger('IMI.REQUEST_CONTENT.DESTROY');
         $context = Coroutine::getContext();
-        if(!$context)
-        {
+        if (!$context) {
             $coId = Coroutine::getuid();
-            if(isset(static::$context[$coId]))
-            {
+            if (isset(static::$context[$coId])) {
                 unset(static::$context[$coId]);
             }
         }
     }
 
     /**
-     * 获取上下文数据
+     * 获取上下文数据.
+     *
      * @param string $name
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public static function get($name, $default = null)
     {
         $context = Coroutine::getContext();
-        if($context)
-        {
+        if ($context) {
             return $context[$name] ?? $default;
         }
+
         return static::$context[Coroutine::getuid()][$name] ?? $default;
     }
 
     /**
-     * 设置上下文数据
+     * 设置上下文数据.
+     *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return void
      */
     public static function set($name, $value)
     {
         $context = Coroutine::getContext();
-        if($context)
-        {
-            if(!($context['__bindDestroy'] ?? false))
-            {
+        if ($context) {
+            if (!($context['__bindDestroy'] ?? false)) {
                 $context['__bindDestroy'] = true;
                 defer('static::__destroy');
             }
-        }
-        else
-        {
+        } else {
             $coId = Coroutine::getuid();
-            if(!isset(static::$context[$coId]))
-            {
+            if (!isset(static::$context[$coId])) {
                 static::$context[$coId] = [];
             }
             $context = &static::$context[$coId];
@@ -109,96 +113,86 @@ abstract class RequestContext
     }
 
     /**
-     * 批量设置上下文数据
+     * 批量设置上下文数据.
      *
      * @param array $data
+     *
      * @return void
      */
     public static function muiltiSet(array $data)
     {
         $context = Coroutine::getContext();
-        if($context)
-        {
-            if(!($context['__bindDestroy'] ?? false))
-            {
+        if ($context) {
+            if (!($context['__bindDestroy'] ?? false)) {
                 $context['__bindDestroy'] = true;
                 defer('static::__destroy');
             }
-        }
-        else
-        {
+        } else {
             $coId = Coroutine::getuid();
-            if(!isset(static::$context[$coId]))
-            {
+            if (!isset(static::$context[$coId])) {
                 static::$context[$coId] = [];
             }
             $context = &static::$context[$coId];
         }
-        foreach($data as $k => $v)
-        {
+        foreach ($data as $k => $v) {
             $context[$k] = $v;
         }
     }
 
     /**
-     * 使用回调来使用当前请求上下文数据
+     * 使用回调来使用当前请求上下文数据.
      *
      * @param callable $callback
+     *
      * @return mixed
      */
     public static function use(callable $callback)
     {
         $context = Coroutine::getContext();
-        if($context)
-        {
-            if(!($context['__bindDestroy'] ?? false))
-            {
+        if ($context) {
+            if (!($context['__bindDestroy'] ?? false)) {
                 $context['__bindDestroy'] = true;
                 defer('static::__destroy');
             }
-        }
-        else
-        {
+        } else {
             $coId = Coroutine::getuid();
-            if(!isset(static::$context[$coId]))
-            {
+            if (!isset(static::$context[$coId])) {
                 static::$context[$coId] = [];
             }
             $context = &static::$context[$coId];
         }
         $result = $callback($context);
+
         return $result;
     }
 
     /**
-     * 获取当前上下文
+     * 获取当前上下文.
+     *
      * @return array
      */
     public static function &getContext()
     {
         $context = Coroutine::getContext();
-        if($context)
-        {
-            if(!($context['__bindDestroy'] ?? false))
-            {
+        if ($context) {
+            if (!($context['__bindDestroy'] ?? false)) {
                 $context['__bindDestroy'] = true;
                 defer('static::__destroy');
             }
-        }
-        else
-        {
+        } else {
             $coId = Coroutine::getuid();
-            if(!isset(static::$context[$coId]))
-            {
+            if (!isset(static::$context[$coId])) {
                 static::$context[$coId] = [];
             }
             $context = &static::$context[$coId];
         }
+
         return $context;
     }
 
     /**
      * 获取当前的服务器对象
+     *
      * @return \Imi\Server\Base|null
      */
     public static function getServer()
@@ -208,7 +202,9 @@ abstract class RequestContext
 
     /**
      * 在当前服务器上下文中获取Bean对象
+     *
      * @param string $name
+     *
      * @return mixed
      */
     public static function getServerBean($name, ...$params)
@@ -218,29 +214,25 @@ abstract class RequestContext
 
     /**
      * 在当前请求上下文中获取Bean对象
+     *
      * @param string $name
+     *
      * @return mixed
      */
     public static function getBean($name, ...$params)
     {
         $context = static::getContext();
-        if(isset($context['container']))
-        {
+        if (isset($context['container'])) {
             $container = $context['container'];
-        }
-        else
-        {
-            if(isset($context['server']))
-            {
+        } else {
+            if (isset($context['server'])) {
                 $container = $context['server']->getContainer()->newSubContainer();
-            }
-            else
-            {
+            } else {
                 $container = App::getContainer()->newSubContainer();
             }
             $context['container'] = $container;
         }
+
         return $container->get($name, ...$params);
     }
-
 }

@@ -2,7 +2,7 @@
 
 use Imi\Util\Args;
 
-require dirname(__DIR__, 5) . '/vendor/autoload.php';
+require dirname(__DIR__, 5).'/vendor/autoload.php';
 
 Args::init(2);
 

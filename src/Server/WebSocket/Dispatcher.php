@@ -1,11 +1,11 @@
 <?php
+
 namespace Imi\Server\WebSocket;
 
-use Imi\App;
-use Imi\RequestContext;
 use Imi\Bean\Annotation\Bean;
-use Imi\Server\WebSocket\Message\IFrame;
+use Imi\RequestContext;
 use Imi\Server\DataParser\DataParser;
+use Imi\Server\WebSocket\Message\IFrame;
 
 /**
  * @Bean("WebSocketDispatcher")
@@ -13,7 +13,8 @@ use Imi\Server\DataParser\DataParser;
 class Dispatcher
 {
     /**
-     * 中间件数组
+     * 中间件数组.
+     *
      * @var string[]
      */
     protected $middlewares = [];
@@ -22,8 +23,7 @@ class Dispatcher
     {
         $requestHandler = new MessageHandler($this->getMiddlewares());
         $responseData = $requestHandler->handle($frame);
-        if(null !== $responseData)
-        {
+        if (null !== $responseData) {
             RequestContext::getServer()->getSwooleServer()->push($frame->getFd(), RequestContext::getServerBean(DataParser::class)->encode($responseData));
         }
     }

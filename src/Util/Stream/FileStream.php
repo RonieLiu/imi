@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Util\Stream;
 
 use Imi\Util\Uri;
@@ -7,49 +8,45 @@ use Psr\Http\Message\StreamInterface;
 class FileStream implements StreamInterface
 {
     /**
-     * 文件Uri
+     * 文件Uri.
+     *
      * @var \Imi\Util\Uri
      */
     protected $uri;
 
     /**
      * 流对象
+     *
      * @var resource
      */
     protected $stream;
 
     /**
-     * 流访问类型
+     * 流访问类型.
+     *
      * @var string
      */
     protected $mode;
 
     public function __construct($uri, $mode = StreamMode::READ_WRITE)
     {
-        if(is_string($uri))
-        {
+        if (is_string($uri)) {
             $this->uri = $uri = new Uri($uri);
-        }
-        else if($uri instanceof Uri)
-        {
+        } elseif ($uri instanceof Uri) {
             $this->uri = $uri;
-        }
-        else
-        {
+        } else {
             $uri = $this->uri;
         }
         $this->mode = $mode;
         $this->stream = fopen($uri, $mode);
-        if(false === $this->stream)
-        {
-            throw new \RuntimeException(sprintf('Open stream %s error', (string)$uri));
+        if (false === $this->stream) {
+            throw new \RuntimeException(sprintf('Open stream %s error', (string) $uri));
         }
     }
 
     public function __destruct()
     {
-        if($this->stream)
-        {
+        if ($this->stream) {
             $this->close();
         }
     }
@@ -66,16 +63,16 @@ class FileStream implements StreamInterface
      * string casting operations.
      *
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
+     *
      * @return string
      */
     public function __toString()
     {
-        try{
+        try {
             $this->rewind();
+
             return stream_get_contents($this->stream);
-        }
-        catch(\Throwable $ex)
-        {
+        } catch (\Throwable $ex) {
             return '';
         }
     }
@@ -102,6 +99,7 @@ class FileStream implements StreamInterface
     {
         $stream = $this->stream;
         $this->stream = null;
+
         return $stream;
     }
 
@@ -113,26 +111,27 @@ class FileStream implements StreamInterface
     public function getSize()
     {
         $stat = fstat($this->stream);
-        if(false === $stat)
-        {
+        if (false === $stat) {
             throw new \RuntimeException('get stream size error');
         }
+
         return $stat['size'];
     }
 
     /**
-     * Returns the current position of the file read/write pointer
+     * Returns the current position of the file read/write pointer.
+     *
+     * @throws \RuntimeException on error.
      *
      * @return int Position of the file pointer
-     * @throws \RuntimeException on error.
      */
     public function tell()
     {
         $result = ftell($this->stream);
-        if(false === $result)
-        {
+        if (false === $result) {
             throw new \RuntimeException('stream tell error');
         }
+
         return $result;
     }
 
@@ -153,25 +152,26 @@ class FileStream implements StreamInterface
      */
     public function isSeekable()
     {
-        return !!$this->getMetadata('seekable');
+        return (bool) $this->getMetadata('seekable');
     }
 
     /**
      * Seek to a position in the stream.
      *
      * @link http://www.php.net/manual/en/function.fseek.php
+     *
      * @param int $offset Stream offset
      * @param int $whence Specifies how the cursor position will be calculated
-     *     based on the seek offset. Valid values are identical to the built-in
-     *     PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
-     *     offset bytes SEEK_CUR: Set position to current location plus offset
-     *     SEEK_END: Set position to end-of-stream plus offset.
+     *                    based on the seek offset. Valid values are identical to the built-in
+     *                    PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
+     *                    offset bytes SEEK_CUR: Set position to current location plus offset
+     *                    SEEK_END: Set position to end-of-stream plus offset.
+     *
      * @throws \RuntimeException on failure.
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        if(-1 === fseek($this->stream, $offset, $whence))
-        {
+        if (-1 === fseek($this->stream, $offset, $whence)) {
             throw new \RuntimeException('seek stream error');
         }
     }
@@ -184,12 +184,12 @@ class FileStream implements StreamInterface
      *
      * @see seek()
      * @link http://www.php.net/manual/en/function.fseek.php
+     *
      * @throws \RuntimeException on failure.
      */
     public function rewind()
     {
-        if(!rewind($this->stream))
-        {
+        if (!rewind($this->stream)) {
             throw new \RuntimeException('rewind stream failed');
         }
     }
@@ -216,16 +216,18 @@ class FileStream implements StreamInterface
      * Write data to the stream.
      *
      * @param string $string The string that is to be written.
-     * @return int Returns the number of bytes written to the stream.
+     *
      * @throws \RuntimeException on failure.
+     *
+     * @return int Returns the number of bytes written to the stream.
      */
     public function write($string)
     {
         $result = fwrite($this->stream, $string);
-        if(false === $result)
-        {
+        if (false === $result) {
             throw new \RuntimeException('write stream failed');
         }
+
         return $result;
     }
 
@@ -249,36 +251,39 @@ class FileStream implements StreamInterface
      * Read data from the stream.
      *
      * @param int $length Read up to $length bytes from the object and return
-     *     them. Fewer than $length bytes may be returned if underlying stream
-     *     call returns fewer bytes.
-     * @return string Returns the data read from the stream, or an empty string
-     *     if no bytes are available.
+     *                    them. Fewer than $length bytes may be returned if underlying stream
+     *                    call returns fewer bytes.
+     *
      * @throws \RuntimeException if an error occurs.
+     *
+     * @return string Returns the data read from the stream, or an empty string
+     *                if no bytes are available.
      */
     public function read($length)
     {
         $result = fread($this->stream, $length);
-        if(false === $result)
-        {
+        if (false === $result) {
             throw new \RuntimeException('read stream error');
         }
+
         return $result;
     }
 
     /**
-     * Returns the remaining contents in a string
+     * Returns the remaining contents in a string.
+     *
+     * @throws \RuntimeException if unable to read or an error occurs while
+     *                           reading.
      *
      * @return string
-     * @throws \RuntimeException if unable to read or an error occurs while
-     *     reading.
      */
     public function getContents()
     {
         $result = stream_get_contents($this->stream);
-        if(false === $result)
-        {
+        if (false === $result) {
             throw new \RuntimeException('stream getContents error');
         }
+
         return $result;
     }
 
@@ -289,28 +294,24 @@ class FileStream implements StreamInterface
      * stream_get_meta_data() function.
      *
      * @link http://php.net/manual/en/function.stream-get-meta-data.php
+     *
      * @param string $key Specific metadata to retrieve.
+     *
      * @return array|mixed|null Returns an associative array if no key is
-     *     provided. Returns a specific key value if a key is provided and the
-     *     value is found, or null if the key is not found.
+     *                          provided. Returns a specific key value if a key is provided and the
+     *                          value is found, or null if the key is not found.
      */
     public function getMetadata($key = null)
     {
         $result = stream_get_meta_data($this->stream);
-        if(!$result)
-        {
+        if (!$result) {
             throw new \RuntimeException('stream getMetadata error');
         }
-        if(null === $key)
-        {
+        if (null === $key) {
             return $result;
-        }
-        else if(isset($result[$key]))
-        {
+        } elseif (isset($result[$key])) {
             return $result[$key];
-        }
-        else
-        {
+        } else {
             return null;
         }
     }

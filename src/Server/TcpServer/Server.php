@@ -1,22 +1,25 @@
 <?php
+
 namespace Imi\Server\TcpServer;
 
 use Imi\App;
-use Imi\Server\Base;
-use Imi\ServerManage;
 use Imi\Bean\Annotation\Bean;
+use Imi\Server\Base;
 use Imi\Server\Event\Param\CloseEventParam;
 use Imi\Server\Event\Param\ConnectEventParam;
 use Imi\Server\Event\Param\ReceiveEventParam;
+use Imi\ServerManage;
 
 /**
- * TCP 服务器类
+ * TCP 服务器类.
+ *
  * @Bean
  */
 class Server extends Base
 {
     /**
      * 创建 swoole 服务器对象
+     *
      * @return void
      */
     protected function createServer()
@@ -26,7 +29,8 @@ class Server extends Base
     }
 
     /**
-     * 从主服务器监听端口，作为子服务器
+     * 从主服务器监听端口，作为子服务器.
+     *
      * @return void
      */
     protected function createSubServer()
@@ -38,7 +42,8 @@ class Server extends Base
     }
 
     /**
-     * 获取服务器初始化需要的配置
+     * 获取服务器初始化需要的配置.
+     *
      * @return array
      */
     protected function getServerInitConfig()
@@ -52,62 +57,53 @@ class Server extends Base
     }
 
     /**
-     * 绑定服务器事件
+     * 绑定服务器事件.
+     *
      * @return void
      */
     protected function __bindEvents()
     {
-        if($event = ($this->config['events']['connect'] ?? true))
-        {
-            $this->swoolePort->on('connect', is_callable($event) ? $event : function(\Swoole\Server $server, $fd, $reactorID){
-                try{
+        if ($event = ($this->config['events']['connect'] ?? true)) {
+            $this->swoolePort->on('connect', is_callable($event) ? $event : function (\Swoole\Server $server, $fd, $reactorID) {
+                try {
                     $this->trigger('connect', [
                         'server'    => $this,
                         'fd'        => $fd,
                         'reactorID' => $reactorID,
                     ], $this, ConnectEventParam::class);
-                }
-                catch(\Throwable $ex)
-                {
+                } catch (\Throwable $ex) {
                     App::getBean('ErrorLog')->onException($ex);
                 }
             });
         }
-        
-        if($event = ($this->config['events']['receive'] ?? true))
-        {
-            $this->swoolePort->on('receive', is_callable($event) ? $event : function(\Swoole\Server $server, $fd, $reactorID, $data){
-                try{
+
+        if ($event = ($this->config['events']['receive'] ?? true)) {
+            $this->swoolePort->on('receive', is_callable($event) ? $event : function (\Swoole\Server $server, $fd, $reactorID, $data) {
+                try {
                     $this->trigger('receive', [
                         'server'    => $this,
                         'fd'        => $fd,
                         'reactorID' => $reactorID,
                         'data'      => $data,
                     ], $this, ReceiveEventParam::class);
-                }
-                catch(\Throwable $ex)
-                {
-                    App::getBean('ErrorLog')->onException($ex);
-                }
-            });
-        }
-    
-        if($event = ($this->config['events']['close'] ?? true))
-        {
-            $this->swoolePort->on('close', is_callable($event) ? $event : function(\Swoole\Server $server, $fd, $reactorID){
-                try{
-                    $this->trigger('close', [
-                        'server'    => $this,
-                        'fd'        => $fd,
-                        'reactorID' => $reactorID,
-                    ], $this, CloseEventParam::class);
-                }
-                catch(\Throwable $ex)
-                {
+                } catch (\Throwable $ex) {
                     App::getBean('ErrorLog')->onException($ex);
                 }
             });
         }
 
+        if ($event = ($this->config['events']['close'] ?? true)) {
+            $this->swoolePort->on('close', is_callable($event) ? $event : function (\Swoole\Server $server, $fd, $reactorID) {
+                try {
+                    $this->trigger('close', [
+                        'server'    => $this,
+                        'fd'        => $fd,
+                        'reactorID' => $reactorID,
+                    ], $this, CloseEventParam::class);
+                } catch (\Throwable $ex) {
+                    App::getBean('ErrorLog')->onException($ex);
+                }
+            });
+        }
     }
 }

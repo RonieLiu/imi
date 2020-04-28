@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test\Component\Tests\Util;
 
 use Imi\Test\BaseTest;
@@ -10,7 +11,7 @@ class ArgsTest extends BaseTest
 {
     public function testArgs()
     {
-        $this->assertEquals(<<<ASSERT
+        $this->assertEquals(<<<'ASSERT'
 array(0) {
 }
 bool(false)
@@ -18,9 +19,9 @@ bool(false)
 bool(false)
 
 ASSERT
-, $this->php(dirname(__DIR__, 2) . '/Util/Args/a.php'));
+, $this->php(dirname(__DIR__, 2).'/Util/Args/a.php'));
 
-        $this->assertEquals(<<<ASSERT
+        $this->assertEquals(<<<'ASSERT'
 array(3) {
   ["a"]=>
   string(1) "1"
@@ -34,9 +35,9 @@ bool(true)
 bool(true)
 
 ASSERT
-, $this->php(dirname(__DIR__, 2) . '/Util/Args/a.php', '-a 1 -b -c "iminb"'));
+, $this->php(dirname(__DIR__, 2).'/Util/Args/a.php', '-a 1 -b -c "iminb"'));
 
-        $this->assertEquals(<<<ASSERT
+        $this->assertEquals(<<<'ASSERT'
 array(0) {
 }
 bool(false)
@@ -44,9 +45,9 @@ bool(false)
 bool(false)
 
 ASSERT
-, $this->php(dirname(__DIR__, 2) . '/Util/Args/b.php', 'abc'));
+, $this->php(dirname(__DIR__, 2).'/Util/Args/b.php', 'abc'));
 
-        $this->assertEquals(<<<ASSERT
+        $this->assertEquals(<<<'ASSERT'
 array(3) {
   ["a"]=>
   string(1) "1"
@@ -60,7 +61,6 @@ bool(true)
 bool(true)
 
 ASSERT
-, $this->php(dirname(__DIR__, 2) . '/Util/Args/b.php', 'abc -a 1 -b -c "iminb"'));
+, $this->php(dirname(__DIR__, 2).'/Util/Args/b.php', 'abc -a 1 -b -c "iminb"'));
     }
-
 }

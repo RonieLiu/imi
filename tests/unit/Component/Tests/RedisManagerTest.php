@@ -1,12 +1,12 @@
 <?php
+
 namespace Imi\Test\Component\Tests;
 
-use Imi\Test\BaseTest;
-use Imi\App;
-use Imi\Redis\RedisManager;
-use PHPUnit\Framework\Assert;
-use Imi\Redis\RedisHandler;
 use Imi\Pool\PoolManager;
+use Imi\Redis\RedisHandler;
+use Imi\Redis\RedisManager;
+use Imi\Test\BaseTest;
+use PHPUnit\Framework\Assert;
 
 /**
  * @testdox RedisManager
@@ -22,6 +22,7 @@ class RedisManagerTest extends BaseTest
     {
         $pool = PoolManager::getInstance('redis_manager_test');
         $instance = null;
+
         try {
             Assert::assertEquals(1, $pool->getCount());
             Assert::assertEquals(1, $pool->getFree());
@@ -32,8 +33,7 @@ class RedisManagerTest extends BaseTest
             Assert::assertEquals(0, $pool->getFree());
             $this->assertRedisHandler($instance);
         } finally {
-            if($instance)
-            {
+            if ($instance) {
                 RedisManager::release($instance);
                 Assert::assertEquals(1, $pool->getCount());
                 Assert::assertEquals(1, $pool->getFree());
@@ -44,7 +44,7 @@ class RedisManagerTest extends BaseTest
     public function testInstance()
     {
         $pool = PoolManager::getInstance('redis_manager_test');
-        $this->go(function() use($pool){
+        $this->go(function () use ($pool) {
             Assert::assertEquals(1, $pool->getCount());
             Assert::assertEquals(1, $pool->getFree());
 
@@ -61,6 +61,7 @@ class RedisManagerTest extends BaseTest
 
     /**
      * @param \Imi\Redis\RedisHandler $redisHandler
+     *
      * @return void
      */
     private function assertRedisHandler($redisHandler)
@@ -70,5 +71,4 @@ class RedisManagerTest extends BaseTest
         $redisHandler->set('imi:test:a', $time);
         Assert::assertEquals($time, $redisHandler->get('imi:test:a'));
     }
-
 }

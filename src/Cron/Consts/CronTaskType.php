@@ -1,11 +1,12 @@
 <?php
+
 namespace Imi\Cron\Consts;
 
-use Imi\Enum\BaseEnum;
 use Imi\Enum\Annotation\EnumItem;
+use Imi\Enum\BaseEnum;
 
 /**
- * 定时任务类型
+ * 定时任务类型.
  */
 abstract class CronTaskType extends BaseEnum
 {
@@ -28,5 +29,4 @@ abstract class CronTaskType extends BaseEnum
      * @EnumItem("进程")
      */
     const PROCESS = 'process';
-
 }

@@ -1,11 +1,8 @@
 <?php
+
 namespace Imi\Log;
 
 use Imi\App;
-use Imi\Config;
-use Imi\Worker;
-use Imi\Util\File;
-
 
 abstract class Log
 {
@@ -18,7 +15,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function log($level, $message, array $context = array())
+    public static function log($level, $message, array $context = [])
     {
         App::getBean('Logger')->log($level, $message, static::parseContext($context));
     }
@@ -31,7 +28,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function emergency($message, array $context = array())
+    public static function emergency($message, array $context = [])
     {
         App::getBean('Logger')->emergency($message, static::parseContext($context));
     }
@@ -47,7 +44,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function alert($message, array $context = array())
+    public static function alert($message, array $context = [])
     {
         App::getBean('Logger')->alert($message, static::parseContext($context));
     }
@@ -62,7 +59,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function critical($message, array $context = array())
+    public static function critical($message, array $context = [])
     {
         App::getBean('Logger')->critical($message, static::parseContext($context));
     }
@@ -76,7 +73,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function error($message, array $context = array())
+    public static function error($message, array $context = [])
     {
         App::getBean('Logger')->error($message, static::parseContext($context));
     }
@@ -92,7 +89,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function warning($message, array $context = array())
+    public static function warning($message, array $context = [])
     {
         App::getBean('Logger')->warning($message, static::parseContext($context));
     }
@@ -105,7 +102,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function notice($message, array $context = array())
+    public static function notice($message, array $context = [])
     {
         App::getBean('Logger')->notice($message, static::parseContext($context));
     }
@@ -120,7 +117,7 @@ abstract class Log
      *
      * @return void
      */
-    public static function info($message, array $context = array())
+    public static function info($message, array $context = [])
     {
         App::getBean('Logger')->info($message, static::parseContext($context));
     }
@@ -133,50 +130,53 @@ abstract class Log
      *
      * @return void
      */
-    public static function debug($message, array $context = array())
+    public static function debug($message, array $context = [])
     {
         App::getBean('Logger')->debug($message, static::parseContext($context));
     }
-    
+
     /**
-     * 获取代码调用跟踪
+     * 获取代码调用跟踪.
+     *
      * @return array
      */
     private static function getTrace()
     {
         $backtrace = debug_backtrace();
+
         return array_splice($backtrace, 3);
     }
 
     /**
-     * 获取错误文件位置
+     * 获取错误文件位置.
      *
      * @return array
      */
     private static function getErrorFile()
     {
         $backtrace = debug_backtrace(0, 3);
+
         return [$backtrace[2]['file'] ?? '', $backtrace[2]['line'] ?? 0];
     }
-    
+
     /**
-     * 处理context
+     * 处理context.
      *
      * @param array $context
+     *
      * @return array
      */
     private static function parseContext($context)
     {
-        if(!isset($context['trace']))
-        {
+        if (!isset($context['trace'])) {
             $context['trace'] = static::getTrace();
         }
-        if(!isset($context['errorFile']))
-        {
+        if (!isset($context['errorFile'])) {
             list($file, $line) = static::getErrorFile();
             $context['errorFile'] = $file;
             $context['errorLine'] = $line;
         }
+
         return $context;
     }
 }

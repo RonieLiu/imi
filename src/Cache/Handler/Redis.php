@@ -1,9 +1,10 @@
 <?php
+
 namespace Imi\Cache\Handler;
 
+use Imi\Bean\Annotation\Bean;
 use Imi\Redis\Redis as ImiRedis;
 use Imi\Util\DateTime;
-use Imi\Bean\Annotation\Bean;
 
 /**
  * @Bean("RedisCache")
@@ -11,7 +12,8 @@ use Imi\Bean\Annotation\Bean;
 class Redis extends Base
 {
     /**
-     * Redis连接池名称
+     * Redis连接池名称.
+     *
      * @var string
      */
     protected $poolName;
@@ -24,35 +26,32 @@ class Redis extends Base
     protected $prefix;
 
     /**
-     * 将 key 中的 "." 替换为 ":"
+     * 将 key 中的 "." 替换为 ":".
      *
-     * @var boolean
+     * @var bool
      */
     protected $replaceDot = false;
-    
+
     /**
      * Fetches a value from the cache.
      *
      * @param string $key     The unique key of this item in the cache.
      * @param mixed  $default Default value to return if the key does not exist.
      *
-     * @return mixed The value of the item from the cache, or $default in case of cache miss.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
+     *                                                   MUST be thrown if the $key string is not a legal value.
+     *
+     * @return mixed The value of the item from the cache, or $default in case of cache miss.
      */
     public function get($key, $default = null)
     {
         $this->checkKey($key);
-        $result = ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($key){
+        $result = ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($key) {
             return $redis->get($this->parseKey($key));
         }, $this->poolName, true);
-        if(false === $result)
-        {
+        if (false === $result) {
             return $default;
-        }
-        else
-        {
+        } else {
             return $this->decode($result);
         }
     }
@@ -66,20 +65,20 @@ class Redis extends Base
      *                                      the driver supports TTL then the library may set a default value
      *                                      for it or let the driver take care of that.
      *
-     * @return bool True on success and false on failure.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
+     *                                                   MUST be thrown if the $key string is not a legal value.
+     *
+     * @return bool True on success and false on failure.
      */
     public function set($key, $value, $ttl = null)
     {
         $this->checkKey($key);
         // ttl 支持 \DateInterval 格式
-        if($ttl instanceof \DateInterval)
-        {
+        if ($ttl instanceof \DateInterval) {
             $ttl = DateTime::getSecondsByInterval($ttl);
         }
-        return (bool)ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($key, $value, $ttl){
+
+        return (bool) ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($key, $value, $ttl) {
             return $redis->set($this->parseKey($key), $this->encode($value), $ttl);
         }, $this->poolName, true);
     }
@@ -89,15 +88,16 @@ class Redis extends Base
      *
      * @param string $key The unique cache key of the item to delete.
      *
-     * @return bool True if the item was successfully removed. False if there was an error.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
+     *                                                   MUST be thrown if the $key string is not a legal value.
+     *
+     * @return bool True if the item was successfully removed. False if there was an error.
      */
     public function delete($key)
     {
         $this->checkKey($key);
-        return (bool)ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($key){
+
+        return (bool) ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($key) {
             return $redis->del($this->parseKey($key)) > 0;
         }, $this->poolName, true);
     }
@@ -109,7 +109,7 @@ class Redis extends Base
      */
     public function clear()
     {
-        return (bool)ImiRedis::use(function(\Imi\Redis\RedisHandler $redis){
+        return (bool) ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) {
             return $redis->flushDB();
         }, $this->poolName, true);
     }
@@ -120,34 +120,31 @@ class Redis extends Base
      * @param iterable $keys    A list of keys that can obtained in a single operation.
      * @param mixed    $default Default value to return for keys that do not exist.
      *
-     * @return iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as value.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if $keys is neither an array nor a Traversable,
-     *   or if any of the $keys are not a legal value.
+     *                                                   MUST be thrown if $keys is neither an array nor a Traversable,
+     *                                                   or if any of the $keys are not a legal value.
+     *
+     * @return iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as value.
      */
     public function getMultiple($keys, $default = null)
     {
         $this->checkArrayOrTraversable($keys);
-        $mgetResult = ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($keys){
-            foreach($keys as &$key)
-            {
+        $mgetResult = ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($keys) {
+            foreach ($keys as &$key) {
                 $key = $this->parseKey($key);
             }
+
             return $redis->mget($keys);
         }, $this->poolName, true);
         $result = [];
-        foreach($mgetResult as $i => $v)
-        {
-            if(false === $v)
-            {
+        foreach ($mgetResult as $i => $v) {
+            if (false === $v) {
                 $result[$keys[$i]] = $default;
-            }
-            else
-            {
+            } else {
                 $result[$keys[$i]] = $this->decode($v);
             }
         }
+
         return $result;
     }
 
@@ -159,44 +156,39 @@ class Redis extends Base
      *                                       the driver supports TTL then the library may set a default value
      *                                       for it or let the driver take care of that.
      *
-     * @return bool True on success and false on failure.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if $values is neither an array nor a Traversable,
-     *   or if any of the $values are not a legal value.
+     *                                                   MUST be thrown if $values is neither an array nor a Traversable,
+     *                                                   or if any of the $values are not a legal value.
+     *
+     * @return bool True on success and false on failure.
      */
     public function setMultiple($values, $ttl = null)
     {
         $this->checkArrayOrTraversable($values);
-        if($values instanceof \Traversable)
-        {
+        if ($values instanceof \Traversable) {
             $setValues = clone $values;
-        }
-        else
-        {
+        } else {
             $setValues = $values;
         }
-        foreach($setValues as $k => $v)
-        {
+        foreach ($setValues as $k => $v) {
             $setValues[$this->parseKey($k)] = $this->encode($v);
         }
         // ttl 支持 \DateInterval 格式
-        if($ttl instanceof \DateInterval)
-        {
+        if ($ttl instanceof \DateInterval) {
             $ttl = DateTime::getSecondsByInterval($ttl);
         }
-        $result = ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($setValues, $ttl){
+        $result = ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($setValues, $ttl) {
             $result = $redis->mset($setValues);
-            if(null !== $ttl)
-            {
-                foreach($setValues as $k => $v)
-                {
+            if (null !== $ttl) {
+                foreach ($setValues as $k => $v) {
                     $result = $result && $redis->expire($k, $ttl);
                 }
             }
+
             return $result;
         }, $this->poolName, true);
-        return (bool)$result;
+
+        return (bool) $result;
     }
 
     /**
@@ -204,20 +196,21 @@ class Redis extends Base
      *
      * @param iterable $keys A list of string-based keys to be deleted.
      *
-     * @return bool True if the items were successfully removed. False if there was an error.
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if $keys is neither an array nor a Traversable,
-     *   or if any of the $keys are not a legal value.
+     *                                                   MUST be thrown if $keys is neither an array nor a Traversable,
+     *                                                   or if any of the $keys are not a legal value.
+     *
+     * @return bool True if the items were successfully removed. False if there was an error.
      */
     public function deleteMultiple($keys)
     {
         $this->checkArrayOrTraversable($keys);
-        return (bool)ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($keys){
-            foreach($keys as &$key)
-            {
+
+        return (bool) ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($keys) {
+            foreach ($keys as &$key) {
                 $key = $this->parseKey($key);
             }
+
             return $redis->del($keys);
         }, $this->poolName, true);
     }
@@ -232,36 +225,36 @@ class Redis extends Base
      *
      * @param string $key The cache item key.
      *
-     * @return bool
-     *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
+     *                                                   MUST be thrown if the $key string is not a legal value.
+     *
+     * @return bool
      */
     public function has($key)
     {
         $this->checkKey($key);
-        return (bool)ImiRedis::use(function(\Imi\Redis\RedisHandler $redis) use($key){
+
+        return (bool) ImiRedis::use(function (\Imi\Redis\RedisHandler $redis) use ($key) {
             return $redis->exists($this->parseKey($key));
         }, $this->poolName, true);
     }
 
     /**
-     * 处理键
+     * 处理键.
      *
      * @param string $key
+     *
      * @return string
      */
     public function parseKey(string $key): string
     {
-        if($this->replaceDot)
-        {
+        if ($this->replaceDot) {
             $key = str_replace('.', ':', $key);
         }
-        if($this->prefix)
-        {
-            $key = $this->prefix . $key;
+        if ($this->prefix) {
+            $key = $this->prefix.$key;
         }
+
         return $key;
     }
-
 }

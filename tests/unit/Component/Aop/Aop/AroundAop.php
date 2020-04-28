@@ -1,13 +1,14 @@
 <?php
+
 namespace Imi\Test\Component\Aop\Aop;
 
-use Imi\Bean\BeanProxy;
-use Imi\Bean\BeanFactory;
-use Imi\Aop\AroundJoinPoint;
-use PHPUnit\Framework\Assert;
 use Imi\Aop\Annotation\Around;
 use Imi\Aop\Annotation\Aspect;
 use Imi\Aop\Annotation\PointCut;
+use Imi\Aop\AroundJoinPoint;
+use Imi\Bean\BeanFactory;
+use Imi\Bean\BeanProxy;
+use PHPUnit\Framework\Assert;
 
 /**
  * @Aspect
@@ -36,6 +37,7 @@ class AroundAop
         Assert::assertEquals(2, $result);
         $result = $joinPoint->proceed([3]);
         Assert::assertEquals(3, $result);
+
         return 4;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test\Component\Tests\Util;
 
 use Imi\Test\BaseTest;
@@ -13,7 +14,7 @@ class RandomTest extends BaseTest
     {
         $val = Random::int();
         $this->assertTrue($val >= PHP_INT_MIN && $val <= PHP_INT_MAX);
-        
+
         $val = Random::int(1, 3);
         $this->assertTrue($val >= 1 && $val <= 3);
     }
@@ -24,7 +25,7 @@ class RandomTest extends BaseTest
         $this->assertTrue($val >= PHP_INT_MIN && $val <= PHP_INT_MAX);
         [, $afterDot] = explode('.', $val);
         $this->assertLessThanOrEqual(2, strlen($afterDot));
-        
+
         $val = Random::number(1, 3, 1);
         $this->assertTrue($val >= 1 && $val <= 3);
         [, $afterDot] = explode('.', $val);
@@ -57,5 +58,4 @@ class RandomTest extends BaseTest
         $val = Random::letterAndNumber(10, 20);
         $this->assertTrue(preg_match('/^[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]{10, 20}$/', $val) >= 0);
     }
-
 }

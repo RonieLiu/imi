@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Server\Session;
 
 use Imi\RequestContext;
@@ -7,8 +8,10 @@ abstract class Session
 {
     /**
      * 设置Session值
+     *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return void
      */
     public static function set($name, $value)
@@ -18,8 +21,10 @@ abstract class Session
 
     /**
      * 获取Session值
+     *
      * @param string $name
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public static function get($name = null, $default = null)
@@ -29,7 +34,9 @@ abstract class Session
 
     /**
      * 删除Session值
+     *
      * @param string $name
+     *
      * @return void
      */
     public static function delete($name)
@@ -38,9 +45,11 @@ abstract class Session
     }
 
     /**
-     * 获取一次值后将该值删除，可用于验证码等一次性功能
+     * 获取一次值后将该值删除，可用于验证码等一次性功能.
+     *
      * @param string $name
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public static function once($name, $default = false)
@@ -49,13 +58,14 @@ abstract class Session
     }
 
     /**
-     * 清空所有Session
+     * 清空所有Session.
+     *
      * @param string $name
+     *
      * @return void
      */
     public static function clear()
     {
         RequestContext::getBean('SessionManager')->clear();
     }
-
 }

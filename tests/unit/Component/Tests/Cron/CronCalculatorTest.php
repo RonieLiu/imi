@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test\Component\Tests\Cron;
 
 use Imi\App;
@@ -11,7 +12,7 @@ use Imi\Test\BaseTest;
 class CronCalculatorTest extends BaseTest
 {
     /**
-     * CronCalculator
+     * CronCalculator.
      *
      * @var \Imi\Cron\CronCalculator
      */
@@ -91,7 +92,6 @@ class CronCalculatorTest extends BaseTest
             new CronRule(['week' => '-2--1']),
         ]));
     }
-
 
     public function testDay()
     {
@@ -225,7 +225,7 @@ class CronCalculatorTest extends BaseTest
             new CronRule(['second' => '3n']),
         ]));
     }
-    
+
     public function testAll()
     {
         $beginTime = strtotime('2018-06-21 12:34:56');
@@ -295,5 +295,4 @@ class CronCalculatorTest extends BaseTest
             new CronRule(['second' => '61n']),
         ]));
     }
-
 }

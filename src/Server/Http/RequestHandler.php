@@ -1,7 +1,7 @@
 <?php
+
 namespace Imi\Server\Http;
 
-use Imi\App;
 use Imi\RequestContext;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -10,19 +10,22 @@ use Psr\Http\Server\RequestHandlerInterface;
 class RequestHandler implements RequestHandlerInterface
 {
     /**
-     * 中间件数组
+     * 中间件数组.
+     *
      * @var string[]
      */
     protected $middlewares = [];
 
     /**
-     * 当前执行第几个
+     * 当前执行第几个.
+     *
      * @var int
      */
     protected $index = 0;
 
     /**
-     * 构造方法
+     * 构造方法.
+     *
      * @param string[] $middlewares 中间件数组
      */
     public function __construct(array $middlewares)
@@ -36,42 +39,39 @@ class RequestHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $middlewares = &$this->middlewares;
-        if(isset($middlewares[$this->index]))
-        {
+        if (isset($middlewares[$this->index])) {
             $middleware = $middlewares[$this->index];
-            if(is_object($middleware))
-            {
+            if (is_object($middleware)) {
                 $requestHandler = $middleware;
-            }
-            else
-            {
+            } else {
                 $requestHandler = RequestContext::getServerBean($middleware);
             }
-        }
-        else
-        {
+        } else {
             return RequestContext::get('response');
         }
+
         return $requestHandler->process($request, $this->next());
     }
 
     /**
      * 获取下一个RequestHandler对象
+     *
      * @return static
      */
     protected function next()
     {
-        ++$this->index;
+        $this->index++;
+
         return $this;
     }
 
     /**
-     * 是否是最后一个
-     * @return boolean
+     * 是否是最后一个.
+     *
+     * @return bool
      */
     public function isLast()
     {
         return !isset($this->middlewares[$this->index]);
     }
-    
 }

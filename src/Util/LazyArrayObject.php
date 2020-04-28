@@ -1,15 +1,17 @@
 <?php
+
 namespace Imi\Util;
 
 use Imi\Util\Interfaces\IArrayable;
 
 /**
- * 同时可以作为数组和对象访问的类
+ * 同时可以作为数组和对象访问的类.
  */
 class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSerializable
 {
     /**
-     * 数据
+     * 数据.
+     *
      * @var array
      */
     private $data;
@@ -27,14 +29,12 @@ class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSeria
     public function &offsetGet($offset)
     {
         $data = &$this->data;
-        if(array_key_exists($offset, $data))
-        {
+        if (array_key_exists($offset, $data)) {
             $value = &$data[$offset];
-        }
-        else
-        {
+        } else {
             $value = null;
         }
+
         return $value;
     }
 
@@ -46,8 +46,7 @@ class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSeria
     public function offsetUnset($offset)
     {
         $data = &$this->data;
-        if(array_key_exists($offset, $data))
-        {
+        if (array_key_exists($offset, $data)) {
             unset($data[$offset]);
         }
     }
@@ -77,7 +76,7 @@ class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSeria
         return null !== key($this->data);
     }
 
-    public function __set($name, $value) 
+    public function __set($name, $value)
     {
         $this->data[$name] = $value;
     }
@@ -95,14 +94,14 @@ class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSeria
     public function __unset($name)
     {
         $data = &$this->data;
-        if(array_key_exists($name, $data))
-        {
+        if (array_key_exists($name, $data)) {
             unset($data[$name]);
         }
     }
 
     /**
-     * 将当前对象作为数组返回
+     * 将当前对象作为数组返回.
+     *
      * @return array
      */
     public function toArray(): array
@@ -111,7 +110,7 @@ class LazyArrayObject implements \Iterator, \ArrayAccess, IArrayable, \JsonSeria
     }
 
     /**
-     * json 序列化
+     * json 序列化.
      *
      * @return array
      */

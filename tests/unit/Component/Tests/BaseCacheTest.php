@@ -1,8 +1,9 @@
 <?php
+
 namespace Imi\Test\Component\Tests;
 
-use Imi\Test\BaseTest;
 use Imi\Cache\CacheManager;
+use Imi\Test\BaseTest;
 use PHPUnit\Framework\Assert;
 
 abstract class BaseCacheTest extends BaseTest
@@ -24,8 +25,7 @@ abstract class BaseCacheTest extends BaseTest
      */
     public function testSetTTL()
     {
-        if(!$this->supportTTL)
-        {
+        if (!$this->supportTTL) {
             $this->markTestSkipped('Handler does not support TTL');
         }
         Assert::assertTrue(CacheManager::set($this->cacheName, 'imi', 'nb', 2));
@@ -37,8 +37,8 @@ abstract class BaseCacheTest extends BaseTest
     public function testSetMultiple()
     {
         $values = [
-            'k1'    =>    'v1',
-            'k2'    =>    'v2',
+            'k1'    => 'v1',
+            'k2'    => 'v2',
         ];
         Assert::assertTrue(CacheManager::setMultiple($this->cacheName, $values));
         $getValues = CacheManager::getMultiple($this->cacheName, array_keys($values));
@@ -52,21 +52,20 @@ abstract class BaseCacheTest extends BaseTest
      */
     public function testSetMultipleTTL()
     {
-        if(!$this->supportTTL)
-        {
+        if (!$this->supportTTL) {
             $this->markTestSkipped('Handler does not support TTL');
         }
         $values = [
-            'k1'    =>    'v1',
-            'k2'    =>    'v2',
+            'k1'    => 'v1',
+            'k2'    => 'v2',
         ];
         Assert::assertTrue(CacheManager::setMultiple($this->cacheName, $values, 1));
         $getValues = CacheManager::getMultiple($this->cacheName, array_keys($values));
         Assert::assertEquals($values, $getValues);
         usleep(1100000);
         Assert::assertEquals([
-            'k1'    =>  'none',
-            'k2'    =>  'none',
+            'k1'    => 'none',
+            'k2'    => 'none',
         ], CacheManager::getMultiple($this->cacheName, array_keys($values), 'none'));
     }
 
@@ -81,8 +80,8 @@ abstract class BaseCacheTest extends BaseTest
     public function testDeleteMultiple()
     {
         $values = [
-            'k1'    =>    'v1',
-            'k2'    =>    'v2',
+            'k1'    => 'v1',
+            'k2'    => 'v2',
         ];
         Assert::assertTrue(CacheManager::setMultiple($this->cacheName, $values));
         $getValues = CacheManager::getMultiple($this->cacheName, array_keys($values));
@@ -90,8 +89,8 @@ abstract class BaseCacheTest extends BaseTest
 
         Assert::assertTrue(CacheManager::deleteMultiple($this->cacheName, array_keys($values)));
         Assert::assertEquals([
-            'k1'    =>  null,
-            'k2'    =>  null,
+            'k1'    => null,
+            'k2'    => null,
         ], CacheManager::getMultiple($this->cacheName, array_keys($values)));
     }
 
@@ -106,8 +105,8 @@ abstract class BaseCacheTest extends BaseTest
     public function testClear()
     {
         $values = [
-            'k1'    =>    'v1',
-            'k2'    =>    'v2',
+            'k1'    => 'v1',
+            'k2'    => 'v2',
         ];
         Assert::assertTrue(CacheManager::setMultiple($this->cacheName, $values));
         $getValues = CacheManager::getMultiple($this->cacheName, array_keys($values));
@@ -115,9 +114,8 @@ abstract class BaseCacheTest extends BaseTest
 
         Assert::assertTrue(CacheManager::clear($this->cacheName));
         Assert::assertEquals([
-            'k1'    =>  null,
-            'k2'    =>  null,
+            'k1'    => null,
+            'k2'    => null,
         ], CacheManager::getMultiple($this->cacheName, array_keys($values)));
     }
-
 }

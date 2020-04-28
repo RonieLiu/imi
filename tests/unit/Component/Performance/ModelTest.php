@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test\Component\Tests\Performance;
 
 use Imi\Log\Log;
@@ -19,10 +20,9 @@ class ModelTest extends BaseTest
     {
         $this->assertTrue(true);
         $time = microtime(true);
-        for($i = 0; $i < static::PERFORMANCE_COUNT; ++$i)
-        {
+        for ($i = 0; $i < static::PERFORMANCE_COUNT; $i++) {
             Performance::newInstance([
-                'value' =>  $i + 1,
+                'value' => $i + 1,
             ])->insert();
         }
         Log::log('Test', sprintf('Model->insert(): %s s', microtime(true) - $time));
@@ -32,8 +32,7 @@ class ModelTest extends BaseTest
     {
         $this->assertTrue(true);
         $time = microtime(true);
-        for($i = 0; $i < static::PERFORMANCE_COUNT; ++$i)
-        {
+        for ($i = 0; $i < static::PERFORMANCE_COUNT; $i++) {
             Performance::query()->limit(mt_rand(0, 99) * 100, 100);
         }
         Log::log('Test', sprintf('Model->select(): %s s', microtime(true) - $time));
@@ -43,8 +42,7 @@ class ModelTest extends BaseTest
     {
         $this->assertTrue(true);
         $time = microtime(true);
-        for($i = 1; $i <= static::PERFORMANCE_COUNT; ++$i)
-        {
+        for ($i = 1; $i <= static::PERFORMANCE_COUNT; $i++) {
             $record = Performance::find($i);
         }
         Log::log('Test', sprintf('Model->find(): %s s', microtime(true) - $time));
@@ -54,8 +52,7 @@ class ModelTest extends BaseTest
     {
         $this->assertTrue(true);
         $time = microtime(true);
-        for($i = 1; $i <= static::PERFORMANCE_COUNT; ++$i)
-        {
+        for ($i = 1; $i <= static::PERFORMANCE_COUNT; $i++) {
             $record = Performance::find($i);
             $record->value = static::PERFORMANCE_COUNT - $i;
             $record->update();
@@ -68,11 +65,9 @@ class ModelTest extends BaseTest
         $this->assertTrue(true);
         $time = microtime(true);
         $record = Performance::find(1);
-        for($i = 1; $i <= static::PERFORMANCE_COUNT; ++$i)
-        {
+        for ($i = 1; $i <= static::PERFORMANCE_COUNT; $i++) {
             $record->toArray();
         }
         Log::log('Test', sprintf('Model->toArray(): %s s', microtime(true) - $time));
     }
-
 }

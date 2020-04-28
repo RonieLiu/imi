@@ -1,14 +1,15 @@
 <?php
+
 namespace Imi\Cron\Process;
 
-use Imi\Cron\Message\Result;
-use Imi\Process\BaseProcess;
 use Imi\Aop\Annotation\Inject;
+use Imi\Cron\Message\Result;
 use Imi\Process\Annotation\Process;
+use Imi\Process\BaseProcess;
 
 /**
- * 定时任务进程
- * 
+ * 定时任务进程.
+ *
  * @Process(name="CronProcess", co=false)
  */
 class CronProcess extends BaseProcess
@@ -35,22 +36,22 @@ class CronProcess extends BaseProcess
     protected $cronManager;
 
     /**
-     * socket 资源
+     * socket 资源.
      *
      * @var resource
      */
     private $socket;
 
     /**
-     * 是否正在运行
+     * 是否正在运行.
      *
-     * @var boolean
+     * @var bool
      */
     private $running = false;
 
     public function run(\Swoole\Process $process)
     {
-        \Swoole\Process::signal(SIGTERM, function($signo) {
+        \Swoole\Process::signal(SIGTERM, function ($signo) {
             $this->running = false;
         });
         $this->startSocketServer();
@@ -58,32 +59,27 @@ class CronProcess extends BaseProcess
 
     private function startSocketServer()
     {
-        imigo(function(){
+        imigo(function () {
             $socketFile = $this->cronManager->getSocketFile();
-            if(is_file($socketFile))
-            {
+            if (is_file($socketFile)) {
                 unlink($socketFile);
             }
-            $this->socket = $socket = stream_socket_server('unix://' . $socketFile, $errno, $errstr);
-            if(false === $socket)
-            {
+            $this->socket = $socket = stream_socket_server('unix://'.$socketFile, $errno, $errstr);
+            if (false === $socket) {
                 throw new \RuntimeException(sprintf('Create unix socket server failed, errno: %s, errstr: %s, file: %', $errno, $errstr, $socketFile));
             }
             $this->running = true;
             $running = &$this->running;
             $this->startSchedule();
-            while($running)
-            {
+            while ($running) {
                 $arrRead = [$socket];
                 $write = $except = null;
-                if(stream_select($arrRead, $write, $except, 3) > 0)
-                {
+                if (stream_select($arrRead, $write, $except, 3) > 0) {
                     $conn = stream_socket_accept($socket, 1);
-                    if(false === $conn)
-                    {
+                    if (false === $conn) {
                         continue;
                     }
-                    imigo(function() use($conn){
+                    imigo(function () use ($conn) {
                         $this->parseConn($conn);
                         fclose($conn);
                     });
@@ -94,9 +90,10 @@ class CronProcess extends BaseProcess
     }
 
     /**
-     * 处理连接
+     * 处理连接.
      *
      * @param resource $conn
+     *
      * @return void
      */
     private function parseConn($conn)
@@ -104,57 +101,50 @@ class CronProcess extends BaseProcess
         $running = &$this->running;
         $scheduler = $this->scheduler;
         $errorLog = $this->errorLog;
-        while($running)
-        {
+        while ($running) {
             try {
                 $meta = fread($conn, 4);
-                if('' === $meta || false === $meta)
-                {
+                if ('' === $meta || false === $meta) {
                     return;
                 }
                 $length = unpack('N', $meta)[1];
                 $data = fread($conn, $length);
-                if(false === $data || !isset($data[$length - 1]))
-                {
+                if (false === $data || !isset($data[$length - 1])) {
                     return;
                 }
                 $result = unserialize($data);
-                if(!$result instanceof Result)
-                {
+                if (!$result instanceof Result) {
                     return;
                 }
                 $scheduler->completeTask($result);
-            } catch(\Throwable $th) {
+            } catch (\Throwable $th) {
                 $errorLog->onException($th);
             }
         }
     }
 
     /**
-     * 开始定时任务调度
+     * 开始定时任务调度.
      *
      * @return void
      */
     private function startSchedule()
     {
-        imigo(function(){
+        imigo(function () {
             $scheduler = $this->scheduler;
             $running = &$this->running;
             do {
                 $time = microtime(true);
-    
-                foreach($scheduler->schedule() as $task)
-                {
+
+                foreach ($scheduler->schedule() as $task) {
                     $scheduler->runTask($task);
                 }
-    
+
                 $sleep = 1 - (microtime(true) - $time);
-                if($sleep > 0)
-                {
+                if ($sleep > 0) {
                     usleep($sleep * 1000000);
                 }
-            } while($running);
+            } while ($running);
         });
     }
-
 }

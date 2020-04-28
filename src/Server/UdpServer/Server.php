@@ -1,20 +1,23 @@
 <?php
+
 namespace Imi\Server\UdpServer;
 
 use Imi\App;
-use Imi\Server\Base;
-use Imi\ServerManage;
 use Imi\Bean\Annotation\Bean;
+use Imi\Server\Base;
 use Imi\Server\Event\Param\PacketEventParam;
+use Imi\ServerManage;
 
 /**
- * UDP 服务器类
+ * UDP 服务器类.
+ *
  * @Bean
  */
 class Server extends Base
 {
     /**
      * 创建 swoole 服务器对象
+     *
      * @return void
      */
     protected function createServer()
@@ -24,7 +27,8 @@ class Server extends Base
     }
 
     /**
-     * 从主服务器监听端口，作为子服务器
+     * 从主服务器监听端口，作为子服务器.
+     *
      * @return void
      */
     protected function createSubServer()
@@ -36,7 +40,8 @@ class Server extends Base
     }
 
     /**
-     * 获取服务器初始化需要的配置
+     * 获取服务器初始化需要的配置.
+     *
      * @return array
      */
     protected function getServerInitConfig()
@@ -50,38 +55,34 @@ class Server extends Base
     }
 
     /**
-     * 绑定服务器事件
+     * 绑定服务器事件.
+     *
      * @return void
      */
     protected function __bindEvents()
     {
-        if($event = ($this->config['events']['packet'] ?? true))
-        {
-            $this->swoolePort->on('packet', is_callable($event) ? $event : function(\Swoole\Server $server, $data, $clientInfo){
-                try{
+        if ($event = ($this->config['events']['packet'] ?? true)) {
+            $this->swoolePort->on('packet', is_callable($event) ? $event : function (\Swoole\Server $server, $data, $clientInfo) {
+                try {
                     $this->trigger('packet', [
                         'server'        => $this,
                         'data'          => $data,
                         'clientInfo'    => $clientInfo,
                     ], $this, PacketEventParam::class);
-                }
-                catch(\Throwable $ex)
-                {
+                } catch (\Throwable $ex) {
                     App::getBean('ErrorLog')->onException($ex);
                 }
             });
         }
-        
     }
 
     /**
      * 是否为长连接服务
      *
-     * @return boolean
+     * @return bool
      */
     public function isLongConnection(): bool
     {
         return false;
     }
-
 }

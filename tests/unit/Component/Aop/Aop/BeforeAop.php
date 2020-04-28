@@ -1,13 +1,14 @@
 <?php
+
 namespace Imi\Test\Component\Aop\Aop;
 
-use Imi\Aop\JoinPoint;
-use PHPUnit\Framework\Assert;
 use Imi\Aop\Annotation\Aspect;
 use Imi\Aop\Annotation\Before;
 use Imi\Aop\Annotation\PointCut;
+use Imi\Aop\JoinPoint;
 use Imi\Bean\BeanFactory;
 use Imi\Bean\BeanProxy;
+use PHPUnit\Framework\Assert;
 
 /**
  * @Aspect

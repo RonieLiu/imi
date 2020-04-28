@@ -1,11 +1,12 @@
 <?php
+
 namespace Imi\Test\Component\Event\Listener;
 
+use Imi\Bean\Annotation\ClassEventListener;
 use Imi\Event\EventParam;
 use Imi\Event\IEventListener;
-use PHPUnit\Framework\Assert;
 use Imi\Test\Component\Event\Classes\TestClass;
-use Imi\Bean\Annotation\ClassEventListener;
+use PHPUnit\Framework\Assert;
 
 /**
  * @ClassEventListener(className="Imi\Test\Component\Event\Classes\TestClass", eventName="test1")
@@ -13,8 +14,10 @@ use Imi\Bean\Annotation\ClassEventListener;
 class ClassEventTestListener implements IEventListener
 {
     /**
-     * 事件处理方法
+     * 事件处理方法.
+     *
      * @param \Imi\Event\EventParam $e
+     *
      * @return void
      */
     public function handle(EventParam $e)

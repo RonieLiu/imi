@@ -1,13 +1,15 @@
 <?php
+
 namespace Imi\Server\View\Handler;
 
 use Imi\Bean\Annotation\Bean;
-use Imi\Util\Http\Consts\MediaType;
 use Imi\Server\Http\Message\Response;
+use Imi\Util\Http\Consts\MediaType;
 use Imi\Util\Http\Consts\ResponseHeader;
 
 /**
- * Json视图处理器
+ * Json视图处理器.
+ *
  * @Bean("JsonView")
  */
 class Json implements IHandler
@@ -25,13 +27,15 @@ class Json implements IHandler
      * JSON_PRESERVE_ZERO_FRACTION
      * JSON_UNESCAPED_UNICODE
      * JSON_PARTIAL_OUTPUT_ON_ERROR。
-     * @var integer
+     *
+     * @var int
      */
     protected $options = 0;
 
     /**
      * 设置最大深度。 必须大于0。
-     * @var integer
+     *
+     * @var int
      */
     protected $depth = 512;
 

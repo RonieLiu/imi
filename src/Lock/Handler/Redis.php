@@ -1,58 +1,58 @@
 <?php
+
 namespace Imi\Lock\Handler;
 
-use Imi\Redis\Redis as ImiRedis;
-use Imi\Util\Coroutine;
-use Imi\Redis\RedisManager;
 use Imi\Bean\Annotation\Bean;
-use Imi\Lock\Handler\BaseLock;
+use Imi\Redis\Redis as ImiRedis;
+use Imi\Redis\RedisManager;
+use Imi\Util\Coroutine;
 
 /**
- * Redis + Lua 实现的分布式锁，需要 Redis >= 2.6.0
- * 
+ * Redis + Lua 实现的分布式锁，需要 Redis >= 2.6.0.
+ *
  * Lua脚本来自：https://blog.csdn.net/hry2015/article/details/74937375
- * 
+ *
  * @Bean("RedisLock")
  */
 class Redis extends BaseLock
 {
     /**
-     * Redis 连接池名称
+     * Redis 连接池名称.
      *
      * @var string
      */
     public $poolName;
 
     /**
-     * Redis 几号库
+     * Redis 几号库.
      *
-     * @var integer
+     * @var int
      */
     public $db = 0;
 
     /**
-     * 获得锁每次尝试间隔，单位：毫秒
-     * 
+     * 获得锁每次尝试间隔，单位：毫秒.
+     *
      * @var int
      */
     public $waitSleepTime = 20;
 
     /**
-     * Redis key
+     * Redis key.
      *
      * @var string
      */
     public $key;
 
     /**
-     * Redis key 前置
+     * Redis key 前置.
      *
      * @var string
      */
     public $keyPrefix = 'imi:lock:';
 
     /**
-     * 当前锁对象GUID
+     * 当前锁对象GUID.
      *
      * @var string
      */
@@ -61,18 +61,17 @@ class Redis extends BaseLock
     public function __construct($id, $options = [])
     {
         parent::__construct($id, $options);
-        if(null === $this->poolName)
-        {
+        if (null === $this->poolName) {
             $this->poolName = RedisManager::getDefaultPoolName();
         }
-        $this->key = $this->keyPrefix . $id;
-        $this->guid = md5(uniqid('', true) . spl_object_hash($this));
+        $this->key = $this->keyPrefix.$id;
+        $this->guid = md5(uniqid('', true).spl_object_hash($this));
     }
 
     /**
-     * 加锁，会挂起协程
+     * 加锁，会挂起协程.
      *
-     * @return boolean
+     * @return bool
      */
     protected function __lock(): bool
     {
@@ -80,38 +79,32 @@ class Redis extends BaseLock
         $waitTimeout = $this->waitTimeout;
         $waitSleepTime = $this->waitSleepTime;
         do {
-            if($this->__tryLock())
-            {
+            if ($this->__tryLock()) {
                 return true;
             }
-            if(0 === $waitTimeout || microtime(true) - $beginTime < $waitTimeout / 1000)
-            {
-                if(Coroutine::isIn())
-                {
+            if (0 === $waitTimeout || microtime(true) - $beginTime < $waitTimeout / 1000) {
+                if (Coroutine::isIn()) {
                     Coroutine::sleep($waitSleepTime / 1000);
-                }
-                else
-                {
+                } else {
                     usleep($waitSleepTime * 1000);
                 }
-            }
-            else
-            {
+            } else {
                 break;
             }
-        } while(true);
+        } while (true);
+
         return false;
     }
 
     /**
      * 尝试获取锁
      *
-     * @return boolean
+     * @return bool
      */
     protected function __tryLock(): bool
     {
-        return ImiRedis::use(function($redis){
-            return 1 == $redis->evalEx(<<<SCRIPT
+        return ImiRedis::use(function ($redis) {
+            return 1 == $redis->evalEx(<<<'SCRIPT'
 local key     = KEYS[1]
 local content = KEYS[2]
 local ttl     = ARGV[2]
@@ -141,12 +134,12 @@ SCRIPT
     /**
      * 解锁
      *
-     * @return boolean
+     * @return bool
      */
     protected function __unlock(): bool
     {
-        return ImiRedis::use(function($redis){
-            return false !== $redis->evalEx(<<<SCRIPT
+        return ImiRedis::use(function ($redis) {
+            return false !== $redis->evalEx(<<<'SCRIPT'
 local key     = KEYS[1]
 local content = KEYS[2]
 local db      = ARGV[1]
@@ -164,5 +157,4 @@ SCRIPT
             ], 2);
         }, $this->poolName, true);
     }
-
 }

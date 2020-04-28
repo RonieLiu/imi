@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test\Component\Tests;
 
 use Imi\Lock\Lock;
@@ -15,6 +16,7 @@ abstract class BaseLockTest extends BaseTest
         Assert::assertFalse(Lock::isLocked($this->lockId));
         Assert::assertEquals(-1, Lock::getInstance($this->lockId)->getLockCoId());
         $result = Lock::lock($this->lockId);
+
         try {
             Assert::assertTrue($result);
             Assert::assertTrue(Lock::isLocked($this->lockId));
@@ -31,6 +33,7 @@ abstract class BaseLockTest extends BaseTest
         Assert::assertFalse(Lock::isLocked($this->lockId));
         Assert::assertEquals(-1, Lock::getInstance($this->lockId)->getLockCoId());
         $result = Lock::tryLock($this->lockId);
+
         try {
             Assert::assertTrue($result);
             Assert::assertTrue(Lock::isLocked($this->lockId));
@@ -45,7 +48,7 @@ abstract class BaseLockTest extends BaseTest
     public function testLockCallable()
     {
         Assert::assertFalse(Lock::isLocked($this->lockId));
-        $result = Lock::lock($this->lockId, function(){
+        $result = Lock::lock($this->lockId, function () {
             Assert::assertTrue(Lock::isLocked($this->lockId));
             Assert::assertEquals(Coroutine::getuid(), Lock::getInstance($this->lockId)->getLockCoId());
         });
@@ -57,7 +60,7 @@ abstract class BaseLockTest extends BaseTest
     {
         Assert::assertFalse(Lock::isLocked($this->lockId));
         Assert::assertEquals(-1, Lock::getInstance($this->lockId)->getLockCoId());
-        $result = Lock::tryLock($this->lockId, function(){
+        $result = Lock::tryLock($this->lockId, function () {
             Assert::assertTrue(Lock::isLocked($this->lockId));
             Assert::assertEquals(Coroutine::getuid(), Lock::getInstance($this->lockId)->getLockCoId());
         });
@@ -70,15 +73,15 @@ abstract class BaseLockTest extends BaseTest
     {
         Assert::assertFalse(Lock::isLocked($this->lockId));
         Assert::assertEquals(-1, Lock::getInstance($this->lockId)->getLockCoId());
-        $result = Lock::lock($this->lockId, function(){
+        $result = Lock::lock($this->lockId, function () {
             Assert::assertTrue(false);
-        }, function(){
+        }, function () {
             Assert::assertEquals(Coroutine::getuid(), Lock::getInstance($this->lockId)->getLockCoId());
+
             return true;
         });
         Assert::assertTrue($result);
         Assert::assertFalse(Lock::isLocked($this->lockId));
         Assert::assertEquals(-1, Lock::getInstance($this->lockId)->getLockCoId());
     }
-
 }

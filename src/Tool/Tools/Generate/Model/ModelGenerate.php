@@ -1,18 +1,17 @@
 <?php
+
 namespace Imi\Tool\Tools\Generate\Model;
 
-use Imi\App;
-use Imi\Db\Db;
 use Imi\Config;
-use Imi\Util\Imi;
-use Imi\Util\File;
-use Imi\Util\Text;
-use Imi\Main\Helper;
-use Imi\Tool\ArgType;
-use Imi\Tool\Annotation\Arg;
-use Imi\Tool\Annotation\Tool;
-use Imi\Tool\Annotation\Operation;
+use Imi\Db\Db;
 use Imi\Db\Query\Interfaces\IQuery;
+use Imi\Tool\Annotation\Arg;
+use Imi\Tool\Annotation\Operation;
+use Imi\Tool\Annotation\Tool;
+use Imi\Tool\ArgType;
+use Imi\Util\File;
+use Imi\Util\Imi;
+use Imi\Util\Text;
 
 /**
  * @Tool("generate")
@@ -21,6 +20,7 @@ class ModelGenerate
 {
     /**
      * 生成数据库中所有表的模型文件，如果设置了`include`或`exclude`，则按照相应规则过滤表。
+     *
      * @Operation("model")
      *
      * @Arg(name="namespace", type=ArgType::STRING, required=true, comments="生成的Model所在命名空间")
@@ -33,41 +33,34 @@ class ModelGenerate
      * @Arg(name="config", type=ArgType::STRING, default=true, comments="配置文件。true-项目配置；false-忽略配置；php配置文件名-使用该配置文件。默认为true")
      * @Arg(name="basePath", type=ArgType::STRING, default=null, comments="指定命名空间对应的基准路径，可选")
      * @Arg(name="entity", type=ArgType::BOOLEAN, default=true, comments="序列化时是否使用驼峰命名(true or false),默认true,可选")
+     *
      * @return void
      */
     public function generate($namespace, $database, $poolName, $prefix, $include, $exclude, $override, $config, $basePath, $entity)
     {
-        $override = (string)$override;
-        switch($override)
-        {
+        $override = (string) $override;
+        switch ($override) {
             case 'base':
                 break;
             case 'model':
                 break;
             default:
-                $override = (bool)json_decode($override);
+                $override = (bool) json_decode($override);
         }
-        if(in_array($config, ['true', 'false']))
-        {
-            $config = (bool)json_decode($config);
+        if (in_array($config, ['true', 'false'])) {
+            $config = (bool) json_decode($config);
         }
-        if(true === $config)
-        {
+        if (true === $config) {
             $configData = Config::get('@app.tools.generate/model');
-        }
-        else if(is_string($config))
-        {
+        } elseif (is_string($config)) {
             $configData = include $config;
             $configData = $configData['tools']['generate/model'];
-        }
-        else
-        {
+        } else {
             $configData = null;
         }
         $query = Db::query($poolName);
         // 数据库
-        if(null === $database)
-        {
+        if (null === $database) {
             $database = $query->execute('select database()')->getScalar();
         }
         // 表
@@ -81,78 +74,63 @@ class ModelGenerate
                       ->select()
                       ->getArray();
         // model保存路径
-        if(null === $basePath)
-        {
+        if (null === $basePath) {
             $modelPath = Imi::getNamespacePath($namespace);
-        }
-        else
-        {
+        } else {
             $modelPath = $basePath;
         }
-        if(null === $modelPath)
-        {
+        if (null === $modelPath) {
             echo 'Namespace ', $namespace, ' cannot found', PHP_EOL;
             exit;
         }
         echo 'modelPath: ', $modelPath, PHP_EOL;
         File::createDir($modelPath);
-        $baseModelPath = $modelPath . '/Base';
+        $baseModelPath = $modelPath.'/Base';
         File::createDir($baseModelPath);
-        foreach($list as $item)
-        {
+        foreach ($list as $item) {
             $table = $item['TABLE_NAME'];
-            if(!$this->checkTable($table, $include, $exclude))
-            {
+            if (!$this->checkTable($table, $include, $exclude)) {
                 // 不符合$include和$exclude
                 continue;
             }
             $className = $this->getClassName($table, $prefix);
-            if(isset($configData['relation'][$table]))
-            {
+            if (isset($configData['relation'][$table])) {
                 $configItem = $configData['relation'][$table];
                 $modelNamespace = $configItem['namespace'];
                 $path = Imi::getNamespacePath($modelNamespace);
-                if(null === $path)
-                {
+                if (null === $path) {
                     echo 'Namespace ', $modelNamespace, ' cannot found', PHP_EOL;
                     exit;
                 }
                 File::createDir($path);
-                $basePath = $path . '/Base';
+                $basePath = $path.'/Base';
                 File::createDir($basePath);
-                $fileName = File::path($path, $className . '.php');
-            }
-            else
-            {
+                $fileName = File::path($path, $className.'.php');
+            } else {
                 $hasResult = false;
-                foreach($configData['namespace'] ?? [] as $namespaceName => $namespaceItem)
-                {
-                    if(in_array($table, $namespaceItem['tables'] ?? []))
-                    {
+                foreach ($configData['namespace'] ?? [] as $namespaceName => $namespaceItem) {
+                    if (in_array($table, $namespaceItem['tables'] ?? [])) {
                         $modelNamespace = $namespaceName;
                         $path = Imi::getNamespacePath($modelNamespace);
-                        if(null === $path)
-                        {
+                        if (null === $path) {
                             echo 'Namespace ', $modelNamespace, ' cannot found', PHP_EOL;
                             exit;
                         }
                         File::createDir($path);
-                        $basePath = $path . '/Base';
+                        $basePath = $path.'/Base';
                         File::createDir($basePath);
-                        $fileName = File::path($path, $className . '.php');
+                        $fileName = File::path($path, $className.'.php');
                         $hasResult = true;
                         break;
                     }
                 }
-                if(!$hasResult)
-                {
+                if (!$hasResult) {
                     $modelNamespace = $namespace;
-                    $fileName = File::path($modelPath, $className . '.php');
+                    $fileName = File::path($modelPath, $className.'.php');
                     $basePath = $baseModelPath;
                 }
             }
-            if(false === $override && is_file($fileName))
-            {
+            if (false === $override && is_file($fileName)) {
                 // 不覆盖
                 echo 'Skip ', $table, '...', PHP_EOL;
                 continue;
@@ -170,19 +148,17 @@ class ModelGenerate
                 'poolName'  => $poolName,
                 'ddl'       => $ddl,
             ];
-            $fields = $query->bindValue(':table', $table)->execute(sprintf('show full columns from `%s`.`%s`' , $database, $table))->getArray();
+            $fields = $query->bindValue(':table', $table)->execute(sprintf('show full columns from `%s`.`%s`', $database, $table))->getArray();
             $this->parseFields($fields, $data, 'VIEW' === $item['TABLE_TYPE']);
 
-            $baseFileName = File::path($basePath, $className . 'Base.php');
-            if(!is_file($baseFileName) || true === $override || 'base' === $override)
-            {
+            $baseFileName = File::path($basePath, $className.'Base.php');
+            if (!is_file($baseFileName) || true === $override || 'base' === $override) {
                 echo 'Generating ', $table, ' BaseClass...', PHP_EOL;
                 $baseContent = $this->renderTemplate('base-template', $data);
                 file_put_contents($baseFileName, $baseContent);
             }
 
-            if(!is_file($fileName) || true === $override || 'model' === $override)
-            {
+            if (!is_file($fileName) || true === $override || 'model' === $override) {
                 echo 'Generating ', $table, ' Class...', PHP_EOL;
                 $content = $this->renderTemplate('template', $data);
                 file_put_contents($fileName, $content);
@@ -192,16 +168,17 @@ class ModelGenerate
     }
 
     /**
-     * 检查表是否生成
+     * 检查表是否生成.
+     *
      * @param string $table
-     * @param array $include
-     * @param array $exclude
-     * @return boolean
+     * @param array  $include
+     * @param array  $exclude
+     *
+     * @return bool
      */
     private function checkTable($table, $include, $exclude)
     {
-        if(in_array($table, $exclude))
-        {
+        if (in_array($table, $exclude)) {
             return false;
         }
 
@@ -209,40 +186,40 @@ class ModelGenerate
     }
 
     /**
-     * 表名转短类名
+     * 表名转短类名.
+     *
      * @param string $table
      * @param string $prefix
+     *
      * @return string
      */
     private function getClassName($table, $prefix)
     {
         $prefixLen = strlen($prefix);
-        if(substr($table, 0, $prefixLen) === $prefix)
-        {
+        if (substr($table, 0, $prefixLen) === $prefix) {
             $table = substr($table, $prefixLen);
         }
+
         return Text::toPascalName($table);
     }
 
     /**
-     * 处理字段信息
+     * 处理字段信息.
+     *
      * @param array $fields
      * @param array $data
-     * @param boolean $isView
+     * @param bool  $isView
+     *
      * @return void
      */
     private function parseFields($fields, &$data, $isView)
     {
         $idCount = 0;
-        foreach($fields as $i => $field)
-        {
+        foreach ($fields as $i => $field) {
             $this->parseFieldType($field['Type'], $typeName, $length, $accuracy);
-            if($isView && 0 === $i)
-            {
+            if ($isView && 0 === $i) {
                 $isPk = true;
-            }
-            else
-            {
+            } else {
                 $isPk = 'PRI' === $field['Key'];
             }
             $data['fields'][] = [
@@ -259,64 +236,66 @@ class ModelGenerate
                 'isAutoIncrement'   => false !== strpos($field['Extra'], 'auto_increment'),
                 'comment'           => $field['Comment'],
             ];
-            if($isPk)
-            {
+            if ($isPk) {
                 $data['table']['id'][] = $field['Field'];
-                ++$idCount;
+                $idCount++;
             }
         }
     }
 
     /**
-     * 处理类似varchar(32)和decimal(10,2)格式的字段类型
+     * 处理类似varchar(32)和decimal(10,2)格式的字段类型.
+     *
      * @param string $text
      * @param string $typeName
-     * @param int $length
-     * @param int $accuracy
+     * @param int    $length
+     * @param int    $accuracy
+     *
      * @return bool
      */
     public function parseFieldType($text, &$typeName, &$length, &$accuracy)
     {
-        if(preg_match('/([^(]+)(\((\d+)(,(\d+))?\))?/', $text, $match))
-        {
+        if (preg_match('/([^(]+)(\((\d+)(,(\d+))?\))?/', $text, $match)) {
             $typeName = $match[1];
-            $length = (int)($match[3] ?? 0);
-            if(isset($match[5]))
-            {
-                $accuracy = (int)$match[5];
-            }
-            else
-            {
+            $length = (int) ($match[3] ?? 0);
+            if (isset($match[5])) {
+                $accuracy = (int) $match[5];
+            } else {
                 $accuracy = 0;
             }
+
             return true;
-        }
-        else
-        {
+        } else {
             $typeName = '';
             $length = 0;
             $accuracy = 0;
+
             return false;
         }
     }
 
     /**
-     * 渲染模版
+     * 渲染模版.
+     *
      * @param string $template
-     * @param array $data
+     * @param array  $data
+     *
      * @return string
      */
     private function renderTemplate($template, $data)
     {
         extract($data);
         ob_start();
-        include __DIR__ . '/' . $template . '.tpl';
+        include __DIR__.'/'.$template.'.tpl';
+
         return ob_get_clean();
     }
 
     /**
-     * 数据库字段类型转PHP的字段类型
+     * 数据库字段类型转PHP的字段类型.
+     *
      * @param string $type
+     *
      * @return string
      */
     private function dbFieldTypeToPhp($type)
@@ -333,22 +312,24 @@ class ModelGenerate
             'double'    => 'float',
             'float'     => 'float',
             'decimal'   => 'float',
-            'json'      =>  \Imi\Util\LazyArrayObject::class,
+            'json'      => \Imi\Util\LazyArrayObject::class,
         ];
+
         return $map[$firstType] ?? 'string';
     }
 
     /**
-     * 获取创建表的 DDL
+     * 获取创建表的 DDL.
      *
      * @param \Imi\Db\Query\Interfaces\IQuery $query
-     * @param string $table
+     * @param string                          $table
+     *
      * @return string
      */
     public function getDDL(IQuery $query, string $table): string
     {
-        $result = $query->execute('show create table ' . $table);
+        $result = $query->execute('show create table '.$table);
+
         return $result->get()['Create Table'] ?? '';
     }
-
 }

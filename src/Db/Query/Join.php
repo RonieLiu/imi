@@ -1,11 +1,11 @@
 <?php
+
 namespace Imi\Db\Query;
 
-use Imi\Db\Query\Traits\TRaw;
-use Imi\Db\Query\Interfaces\IJoin;
 use Imi\Db\Query\Interfaces\IBaseWhere;
+use Imi\Db\Query\Interfaces\IJoin;
 use Imi\Db\Query\Traits\TKeyword;
-use Imi\Db\Query\Interfaces\IWhere;
+use Imi\Db\Query\Traits\TRaw;
 
 class Join implements IJoin
 {
@@ -13,37 +13,43 @@ class Join implements IJoin
     use TKeyword;
 
     /**
-     * 表名
+     * 表名.
+     *
      * @var \Imi\Db\Query\Table
      */
     protected $table;
 
     /**
-     * 在 join b on a.id=b.id 中的 a.id
+     * 在 join b on a.id=b.id 中的 a.id.
+     *
      * @var string
      */
     protected $left;
 
     /**
-     * 在 join b on a.id=b.id 中的 =
+     * 在 join b on a.id=b.id 中的 =.
+     *
      * @var string
      */
     protected $operation;
 
     /**
-     * join b on a.id=b.id 中的 b.id
+     * join b on a.id=b.id 中的 b.id.
+     *
      * @var string
      */
     protected $right;
 
     /**
-     * where条件
+     * where条件.
+     *
      * @var \Imi\Db\Query\Interfaces\IBaseWhere
      */
     protected $where = null;
 
     /**
-     * join类型，默认inner
+     * join类型，默认inner.
+     *
      * @var string
      */
     protected $type = 'inner';
@@ -52,8 +58,7 @@ class Join implements IJoin
     {
         $this->table = new Table();
         $this->table->setValue($table);
-        if(null !== $tableAlias)
-        {
+        if (null !== $tableAlias) {
             $this->table->setAlias($tableAlias);
         }
         $this->left = $left;
@@ -62,9 +67,10 @@ class Join implements IJoin
         $this->where = $where;
         $this->type = $type;
     }
-    
+
     /**
-     * 表名
+     * 表名.
+     *
      * @return string
      */
     public function getTable(): string
@@ -73,7 +79,8 @@ class Join implements IJoin
     }
 
     /**
-     * 在 join b on a.id=b.id 中的 a.id
+     * 在 join b on a.id=b.id 中的 a.id.
+     *
      * @return string
      */
     public function getLeft(): string
@@ -82,7 +89,8 @@ class Join implements IJoin
     }
 
     /**
-     * 在 join b on a.id=b.id 中的 =
+     * 在 join b on a.id=b.id 中的 =.
+     *
      * @return string
      */
     public function getOperation(): string
@@ -91,7 +99,8 @@ class Join implements IJoin
     }
 
     /**
-     * join b on a.id=b.id 中的 b.id
+     * join b on a.id=b.id 中的 b.id.
+     *
      * @return string
      */
     public function getRight(): string
@@ -100,7 +109,8 @@ class Join implements IJoin
     }
 
     /**
-     * 表别名
+     * 表别名.
+     *
      * @return string
      */
     public function getTableAlias(): string
@@ -109,7 +119,8 @@ class Join implements IJoin
     }
 
     /**
-     * where条件
+     * where条件.
+     *
      * @return \Imi\Db\Query\Interfaces\IBaseWhere
      */
     public function getWhere(): IBaseWhere
@@ -118,7 +129,8 @@ class Join implements IJoin
     }
 
     /**
-     * join类型，默认inner
+     * join类型，默认inner.
+     *
      * @return string
      */
     public function getType(): string
@@ -127,8 +139,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置表名
+     * 设置表名.
+     *
      * @param string $table
+     *
      * @return void
      */
     public function setTable(string $table = null)
@@ -137,8 +151,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置在 join b on a.id=b.id 中的 a.id
+     * 设置在 join b on a.id=b.id 中的 a.id.
+     *
      * @param string $left
+     *
      * @return void
      */
     public function setLeft(string $left)
@@ -147,8 +163,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置在 join b on a.id=b.id 中的 =
+     * 设置在 join b on a.id=b.id 中的 =.
+     *
      * @param string $operation
+     *
      * @return void
      */
     public function setOperation(string $operation)
@@ -157,8 +175,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置join b on a.id=b.id 中的 b.id
+     * 设置join b on a.id=b.id 中的 b.id.
+     *
      * @param string $right
+     *
      * @return void
      */
     public function setRight(string $right)
@@ -167,8 +187,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置表别名
+     * 设置表别名.
+     *
      * @param string $tableAlias
+     *
      * @return void
      */
     public function setTableAlias(string $tableAlias)
@@ -177,8 +199,10 @@ class Join implements IJoin
     }
 
     /**
-     * 设置where条件
+     * 设置where条件.
+     *
      * @param IBaseWhere $where
+     *
      * @return void
      */
     public function setWhere(IBaseWhere $where)
@@ -187,41 +211,40 @@ class Join implements IJoin
     }
 
     /**
-     * 设置join类型
+     * 设置join类型.
+     *
      * @param string $type
+     *
      * @return void
      */
     public function setType(string $type)
     {
         $this->type = $type;
     }
-    
+
     public function __toString()
     {
-        if($this->isRaw)
-        {
+        if ($this->isRaw) {
             return $this->rawSQL;
         }
-        $result = $this->type . ' join ' . $this->table . ' on ' . $this->parseKeyword($this->left) . $this->operation . $this->parseKeyword($this->right);
-        if($this->where instanceof IBaseWhere)
-        {
-            $result .= ' ' . $this->where;
+        $result = $this->type.' join '.$this->table.' on '.$this->parseKeyword($this->left).$this->operation.$this->parseKeyword($this->right);
+        if ($this->where instanceof IBaseWhere) {
+            $result .= ' '.$this->where;
         }
+
         return $result;
     }
 
     /**
-     * 获取绑定的数据们
+     * 获取绑定的数据们.
+     *
      * @return array
      */
     public function getBinds()
     {
-        if($this->where instanceof IBaseWhere)
-        {
+        if ($this->where instanceof IBaseWhere) {
             return $this->where->getBinds();
-        }
-        else
-        {
+        } else {
             return [];
         }
     }

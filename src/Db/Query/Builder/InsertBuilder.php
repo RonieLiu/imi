@@ -1,9 +1,8 @@
 <?php
+
 namespace Imi\Db\Query\Builder;
 
 use Imi\Util\ArrayUtil;
-use Imi\Db\Query\Query;
-
 
 class InsertBuilder extends BaseBuilder
 {
@@ -14,58 +13,45 @@ class InsertBuilder extends BaseBuilder
         $params = &$this->params;
         $option = $query->getOption();
         list($data) = $args;
-        if(null === $data)
-        {
+        if (null === $data) {
             $data = $option->saveData;
         }
-        if($data instanceof \Traversable)
-        {
+        if ($data instanceof \Traversable) {
             $data = \iterator_to_array($data);
         }
         $valueParams = [];
-        if(ArrayUtil::isAssoc($data))
-        {
+        if (ArrayUtil::isAssoc($data)) {
             $fields = [];
             // 键值数组
-            foreach($data as $k => $v)
-            {
-                if($v instanceof \Imi\Db\Query\Raw)
-                {
-                    if(!is_numeric($k))
-                    {
+            foreach ($data as $k => $v) {
+                if ($v instanceof \Imi\Db\Query\Raw) {
+                    if (!is_numeric($k)) {
                         $fields[] = $this->parseKeyword($k);
-                        $valueParams[] = (string)$v;
+                        $valueParams[] = (string) $v;
                     }
-                }
-                else
-                {
+                } else {
                     $fields[] = $this->parseKeyword($k);
-                    $valueParam = ':' . $k;
+                    $valueParam = ':'.$k;
                     $valueParams[] = $valueParam;
                     $params[$valueParam] = $v;
                 }
             }
-            $sql = 'insert into ' . $option->table . '(' . implode(',', $fields) . ') values(' . implode(',', $valueParams) . ')';
-        }
-        else
-        {
+            $sql = 'insert into '.$option->table.'('.implode(',', $fields).') values('.implode(',', $valueParams).')';
+        } else {
             // 普通数组
-            foreach($data as $v)
-            {
-                if($v instanceof \Imi\Db\Query\Raw)
-                {
-                    $valueParams[] = (string)$v;
-                }
-                else
-                {
+            foreach ($data as $v) {
+                if ($v instanceof \Imi\Db\Query\Raw) {
+                    $valueParams[] = (string) $v;
+                } else {
                     $valueParam = $query->getAutoParamName();
                     $valueParams[] = $valueParam;
                     $params[$valueParam] = $v;
                 }
             }
-            $sql = 'insert into ' . $option->table . ' values(' . implode(',', $valueParams) . ')';
+            $sql = 'insert into '.$option->table.' values('.implode(',', $valueParams).')';
         }
         $query->bindValues($params);
+
         return $sql;
     }
 }

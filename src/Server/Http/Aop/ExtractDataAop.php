@@ -1,20 +1,18 @@
 <?php
+
 namespace Imi\Server\Http\Aop;
 
-use Imi\Aop\JoinPoint;
-use Imi\Aop\PointCutType;
-use Imi\Bean\BeanFactory;
-use Imi\Util\ClassObject;
-use Imi\Validate\Validator;
-use Imi\Aop\AroundJoinPoint;
-use Imi\Aop\Annotation\After;
 use Imi\Aop\Annotation\Around;
 use Imi\Aop\Annotation\Aspect;
-use Imi\Server\Session\Session;
-use Imi\Util\ObjectArrayHelper;
 use Imi\Aop\Annotation\PointCut;
+use Imi\Aop\AroundJoinPoint;
+use Imi\Aop\PointCutType;
 use Imi\Bean\Annotation\AnnotationManager;
+use Imi\Bean\BeanFactory;
 use Imi\Server\Http\Annotation\ExtractData;
+use Imi\Server\Session\Session;
+use Imi\Util\ClassObject;
+use Imi\Util\ObjectArrayHelper;
 
 /**
  * @Aspect
@@ -22,7 +20,8 @@ use Imi\Server\Http\Annotation\ExtractData;
 class ExtractDataAop
 {
     /**
-     * 处理 ExtractData 注解
+     * 处理 ExtractData 注解.
+     *
      * @PointCut(
      *         type=PointCutType::ANNOTATION,
      *         allow={
@@ -30,6 +29,7 @@ class ExtractDataAop
      *         }
      * )
      * @Around
+     *
      * @return mixed
      */
     public function parseExtractData(AroundJoinPoint $joinPoint)
@@ -39,36 +39,30 @@ class ExtractDataAop
         $methodName = $joinPoint->getMethod();
 
         $annotations = AnnotationManager::getMethodAnnotations($className, $methodName, ExtractData::class);
-        if(isset($annotations[0]))
-        {
+        if (isset($annotations[0])) {
             $data = ClassObject::convertArgsToKV($className, $methodName, $joinPoint->getArgs());
             $allData = [
-                '$get'      =>  $controller->request->get(),
-                '$post'     =>  $controller->request->post(),
-                '$body'     =>  $controller->request->getParsedBody(),
-                '$headers'  =>  [],
-                '$cookie'   =>  $controller->request->getCookieParams(),
-                '$session'  =>  Session::get(),
-                '$this'     =>  $controller,
+                '$get'      => $controller->request->get(),
+                '$post'     => $controller->request->post(),
+                '$body'     => $controller->request->getParsedBody(),
+                '$headers'  => [],
+                '$cookie'   => $controller->request->getCookieParams(),
+                '$session'  => Session::get(),
+                '$this'     => $controller,
             ];
-            foreach ($controller->request->getHeaders() as $name => $values)
-            {
+            foreach ($controller->request->getHeaders() as $name => $values) {
                 $allData['$headers'][$name] = implode(', ', $values);
             }
 
-            foreach($annotations as $annotation)
-            {
+            foreach ($annotations as $annotation) {
                 $data[$annotation->to] = ObjectArrayHelper::get($allData, $annotation->name, $annotation->default);
             }
 
             $data = array_values($data);
-        }
-        else
-        {
+        } else {
             $data = null;
         }
 
         return $joinPoint->proceed($data);
     }
-
 }

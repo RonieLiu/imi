@@ -1,9 +1,9 @@
 <?php
+
 namespace Imi\Server\UdpServer;
 
-use Imi\App;
-use Imi\RequestContext;
 use Imi\Bean\Annotation\Bean;
+use Imi\RequestContext;
 use Imi\Server\DataParser\DataParser;
 use Imi\Server\UdpServer\Message\IPacketData;
 
@@ -13,7 +13,8 @@ use Imi\Server\UdpServer\Message\IPacketData;
 class Dispatcher
 {
     /**
-     * 中间件数组
+     * 中间件数组.
+     *
      * @var string[]
      */
     protected $middlewares = [];
@@ -22,8 +23,7 @@ class Dispatcher
     {
         $requestHandler = new PacketHandler($this->getMiddlewares());
         $responseData = $requestHandler->handle($data);
-        if(null !== $responseData)
-        {
+        if (null !== $responseData) {
             $clientInfo = $data->getClientInfo();
             RequestContext::getServer()->getSwooleServer()->sendTo($clientInfo['address'], $clientInfo['port'], RequestContext::getServerBean(DataParser::class)->encode($responseData));
         }

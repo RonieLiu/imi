@@ -1,17 +1,18 @@
 <?php
+
 namespace Imi\Test\Component\Tests;
 
-use Imi\Test\BaseTest;
-use Imi\Bean\Annotation\Bean;
-use Imi\Model\Annotation\Table;
-use Imi\Bean\Annotation\Inherit;
-use Imi\Model\Annotation\Column;
 use Imi\Aop\Annotation\FilterArg;
-use Imi\Bean\Annotation\Callback;
-use Imi\Enum\Annotation\EnumItem;
-use Imi\Db\Annotation\Transaction;
-use Imi\Test\Component\Inherit\TestClass;
 use Imi\Bean\Annotation\AnnotationManager;
+use Imi\Bean\Annotation\Bean;
+use Imi\Bean\Annotation\Callback;
+use Imi\Bean\Annotation\Inherit;
+use Imi\Db\Annotation\Transaction;
+use Imi\Enum\Annotation\EnumItem;
+use Imi\Model\Annotation\Column;
+use Imi\Model\Annotation\Table;
+use Imi\Test\BaseTest;
+use Imi\Test\Component\Inherit\TestClass;
 
 /**
  * @testdox Inherit
@@ -69,5 +70,4 @@ class InheritTest extends BaseTest
         $this->assertInstanceOf(Inherit::class, $annotations[0]);
         $this->assertInstanceOf(EnumItem::class, $annotations[1]);
     }
-
 }

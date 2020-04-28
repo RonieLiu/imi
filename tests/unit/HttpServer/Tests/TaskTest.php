@@ -1,8 +1,9 @@
 <?php
+
 namespace Imi\Test\HttpServer\Tests;
 
-use Yurun\Util\HttpRequest;
 use PHPUnit\Framework\Assert;
+use Yurun\Util\HttpRequest;
 
 /**
  * @testdox Task
@@ -11,9 +12,9 @@ class TaskTest extends BaseTest
 {
     public function testTask()
     {
-        $http = new HttpRequest;
+        $http = new HttpRequest();
 
-        $response = $http->get($this->host . 'task/test');
+        $response = $http->get($this->host.'task/test');
         $data = $response->json(true);
 
         Assert::assertIsInt($data['post']);

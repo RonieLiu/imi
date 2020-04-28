@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Util;
 
 use Psr\Http\Message\UriInterface;
@@ -6,19 +7,22 @@ use Psr\Http\Message\UriInterface;
 class Uri implements UriInterface
 {
     /**
-     * 协议，如：http
+     * 协议，如：http.
+     *
      * @var string
      */
     protected $scheme;
 
     /**
-     * 主机名
+     * 主机名.
+     *
      * @var string
      */
     protected $host;
 
     /**
-     * 端口号
+     * 端口号.
+     *
      * @var int|null
      */
     protected $port;
@@ -26,30 +30,35 @@ class Uri implements UriInterface
     /**
      * 用户信息
      * 格式：用户名:密码
+     *
      * @var string
      */
     protected $userInfo;
 
     /**
-     * 路径
+     * 路径.
+     *
      * @var string
      */
     protected $path;
 
     /**
-     * 查询参数，在?后的
+     * 查询参数，在?后的.
+     *
      * @var string
      */
     protected $query;
 
     /**
-     * 锚点，在#后的
+     * 锚点，在#后的.
+     *
      * @var string
      */
     protected $fragment;
-    
+
     /**
-     * 协议标准端口
+     * 协议标准端口.
+     *
      * @var array
      */
     protected static $schemePorts = [
@@ -61,69 +70,69 @@ class Uri implements UriInterface
     public function __construct(string $uri = '')
     {
         $uriOption = parse_url($uri);
-        if(false === $uriOption)
-        {
+        if (false === $uriOption) {
             throw new \InvalidArgumentException(sprintf('Uri %s parse error', $uri));
         }
         $this->scheme = isset($uriOption['scheme']) ? $uriOption['scheme'] : '';
         $this->host = isset($uriOption['host']) ? $uriOption['host'] : '';
         $this->port = isset($uriOption['port']) ? $uriOption['port'] : null;
         $this->userInfo = isset($uriOption['user']) ? $uriOption['user'] : '';
-        if(isset($uriOption['pass']))
-        {
-            $this->userInfo .= ':' . $uriOption['pass'];
+        if (isset($uriOption['pass'])) {
+            $this->userInfo .= ':'.$uriOption['pass'];
         }
         $this->path = isset($uriOption['path']) ? $uriOption['path'] : '';
         $this->query = isset($uriOption['query']) ? $uriOption['query'] : '';
         $this->fragment = isset($uriOption['fragment']) ? $uriOption['fragment'] : '';
     }
-    
+
     /**
-     * 生成Uri文本
+     * 生成Uri文本.
+     *
      * @param string $host
      * @param string $path
      * @param string $query
-     * @param int $port
+     * @param int    $port
      * @param string $scheme
      * @param string $fragment
      * @param string $userInfo
+     *
      * @return string
      */
     public static function makeUriString($host, $path, $query = '', $port = null, $scheme = 'http', $fragment = '', $userInfo = '')
     {
         // 协议
-        if('' !== $scheme)
-        {
+        if ('' !== $scheme) {
             $scheme .= '://';
         }
         // 用户信息
-        if('' !== $userInfo)
-        {
+        if ('' !== $userInfo) {
             $userInfo .= '@';
         }
         // 端口
-        if(null !== $port)
-        {
-            $port = ':' . $port;
+        if (null !== $port) {
+            $port = ':'.$port;
         }
         // 路径
-        $path = '/' . ltrim($path, '/');
+        $path = '/'.ltrim($path, '/');
         // 查询参数
-        $query = ('' === $query ? '' : ('?' . $query));
+        $query = ('' === $query ? '' : ('?'.$query));
         // 锚点
-        $fragment = ('' === $fragment ? '' : ('#' . $fragment));
+        $fragment = ('' === $fragment ? '' : ('#'.$fragment));
+
         return "{$scheme}{$userInfo}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
      * 生成Uri对象
+     *
      * @param string $host
      * @param string $path
      * @param string $query
-     * @param int $port
+     * @param int    $port
      * @param string $scheme
      * @param string $fragment
      * @param string $userInfo
+     *
      * @return static
      */
     public static function makeUri($host, $path, $query = '', $port = 80, $scheme = 'http', $fragment = '', $userInfo = '')
@@ -132,34 +141,37 @@ class Uri implements UriInterface
     }
 
     /**
-     * 获取连接到服务器的端口
+     * 获取连接到服务器的端口.
      *
      * @param \Psr\Http\Message\UriInterface $uri
+     *
      * @return void
      */
     public static function getServerPort(UriInterface $uri)
     {
         $port = $uri->getPort();
-        if(!$port)
-        {
+        if (!$port) {
             $port = static::$schemePorts[$uri->getScheme()] ?? null;
         }
+
         return $port;
     }
 
     /**
      * 获取域名
-     * 格式：host[:port]
+     * 格式：host[:port].
+     *
      * @param \Psr\Http\Message\UriInterface $uri
+     *
      * @return string
      */
     public static function getDomain(UriInterface $uri)
     {
         $result = $uri->host;
-        if(null !== $uri->port)
-        {
-            $result .= ':' . $uri->port;
+        if (null !== $uri->port) {
+            $result .= ':'.$uri->port;
         }
+
         return $result;
     }
 
@@ -175,6 +187,7 @@ class Uri implements UriInterface
      * added.
      *
      * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     *
      * @return string The URI scheme.
      */
     public function getScheme()
@@ -198,19 +211,19 @@ class Uri implements UriInterface
      * scheme, it SHOULD NOT be included.
      *
      * @see https://tools.ietf.org/html/rfc3986#section-3.2
+     *
      * @return string The URI authority, in "[user-info@]host[:port]" format.
      */
     public function getAuthority()
     {
         $result = $this->host;
-        if('' !== $this->userInfo)
-        {
-            $result = $this->userInfo . '@' . $result;
+        if ('' !== $this->userInfo) {
+            $result = $this->userInfo.'@'.$result;
         }
-        if(null !== $this->port)
-        {
-            $result .= ':' . $this->port;
+        if (null !== $this->port) {
+            $result .= ':'.$this->port;
         }
+
         return $result;
     }
 
@@ -243,6 +256,7 @@ class Uri implements UriInterface
      * Section 3.2.2.
      *
      * @see http://tools.ietf.org/html/rfc3986#section-3.2.2
+     *
      * @return string The URI host.
      */
     public function getHost()
@@ -293,6 +307,7 @@ class Uri implements UriInterface
      *
      * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.3
+     *
      * @return string The URI path.
      */
     public function getPath()
@@ -318,6 +333,7 @@ class Uri implements UriInterface
      *
      * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.4
+     *
      * @return string The URI query string.
      */
     public function getQuery()
@@ -339,6 +355,7 @@ class Uri implements UriInterface
      *
      * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.5
+     *
      * @return string The URI fragment.
      */
     public function getFragment()
@@ -358,17 +375,19 @@ class Uri implements UriInterface
      * An empty scheme is equivalent to removing the scheme.
      *
      * @param string $scheme The scheme to use with the new instance.
-     * @return static A new instance with the specified scheme.
+     *
      * @throws \InvalidArgumentException for invalid or unsupported schemes.
+     *
+     * @return static A new instance with the specified scheme.
      */
     public function withScheme($scheme)
     {
-        if(!is_string($scheme))
-        {
+        if (!is_string($scheme)) {
             throw new \InvalidArgumentException('invalid or unsupported schemes');
         }
         $self = clone $this;
         $self->scheme = $scheme;
+
         return $self;
     }
 
@@ -382,18 +401,19 @@ class Uri implements UriInterface
      * user; an empty string for the user is equivalent to removing user
      * information.
      *
-     * @param string $user The user name to use for authority.
+     * @param string      $user     The user name to use for authority.
      * @param null|string $password The password associated with $user.
+     *
      * @return static A new instance with the specified user information.
      */
     public function withUserInfo($user, $password = null)
     {
         $self = clone $this;
         $self->userInfo = $user;
-        if(null !== $password)
-        {
-            $self->userInfo .= ':' . $password;
+        if (null !== $password) {
+            $self->userInfo .= ':'.$password;
         }
+
         return $self;
     }
 
@@ -406,13 +426,16 @@ class Uri implements UriInterface
      * An empty host value is equivalent to removing the host.
      *
      * @param string $host The hostname to use with the new instance.
-     * @return static A new instance with the specified host.
+     *
      * @throws \InvalidArgumentException for invalid hostnames.
+     *
+     * @return static A new instance with the specified host.
      */
     public function withHost($host)
     {
         $self = clone $this;
         $self->host = $host;
+
         return $self;
     }
 
@@ -429,14 +452,17 @@ class Uri implements UriInterface
      * information.
      *
      * @param null|int $port The port to use with the new instance; a null value
-     *     removes the port information.
-     * @return static A new instance with the specified port.
+     *                       removes the port information.
+     *
      * @throws \InvalidArgumentException for invalid ports.
+     *
+     * @return static A new instance with the specified port.
      */
     public function withPort($port)
     {
         $self = clone $this;
         $self->port = $port;
+
         return $self;
     }
 
@@ -459,13 +485,16 @@ class Uri implements UriInterface
      * Implementations ensure the correct encoding as outlined in getPath().
      *
      * @param string $path The path to use with the new instance.
-     * @return static A new instance with the specified path.
+     *
      * @throws \InvalidArgumentException for invalid paths.
+     *
+     * @return static A new instance with the specified path.
      */
     public function withPath($path)
     {
         $self = clone $this;
         $self->path = $path;
+
         return $self;
     }
 
@@ -481,13 +510,16 @@ class Uri implements UriInterface
      * An empty query string value is equivalent to removing the query string.
      *
      * @param string $query The query string to use with the new instance.
-     * @return static A new instance with the specified query string.
+     *
      * @throws \InvalidArgumentException for invalid query strings.
+     *
+     * @return static A new instance with the specified query string.
      */
     public function withQuery($query)
     {
         $self = clone $this;
         $self->query = $query;
+
         return $self;
     }
 
@@ -503,12 +535,14 @@ class Uri implements UriInterface
      * An empty fragment value is equivalent to removing the fragment.
      *
      * @param string $fragment The fragment to use with the new instance.
+     *
      * @return static A new instance with the specified fragment.
      */
     public function withFragment($fragment)
     {
         $self = clone $this;
         $self->fragment = $fragment;
+
         return $self;
     }
 
@@ -533,11 +567,11 @@ class Uri implements UriInterface
      * - If a fragment is present, it MUST be prefixed by "#".
      *
      * @see http://tools.ietf.org/html/rfc3986#section-4.1
+     *
      * @return string
      */
     public function __toString()
     {
         return static::makeUriString($this->host, $this->path, $this->query, $this->port, $this->scheme, $this->fragment, $this->userInfo);
     }
-
 }

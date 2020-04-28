@@ -1,8 +1,9 @@
 <?php
+
 namespace Imi\Main;
 
 /**
- * 主类帮助类
+ * 主类帮助类.
  */
 abstract class Helper
 {
@@ -12,55 +13,44 @@ abstract class Helper
 
     /**
      * 获取主类实例对象
+     *
      * @param string $namespace
      * @param string $componentName
+     *
      * @return \Imi\Main\BaseMain
      */
     public static function getMain($namespace, $componentName = null)
     {
-        if(null !== $namespace)
-        {
-            if(null === $componentName)
-            {
+        if (null !== $namespace) {
+            if (null === $componentName) {
                 // 获取
-                if(isset(static::$mains[$namespace]))
-                {
+                if (isset(static::$mains[$namespace])) {
                     return static::$mains[$namespace];
-                }
-                else
-                {
+                } else {
                     return null;
                 }
-            }
-            else
-            {
+            } else {
                 // 获取或新实例
-                if(isset(static::$mains[$namespace]))
-                {
+                if (isset(static::$mains[$namespace])) {
                     return static::$mains[$namespace];
-                }
-                else
-                {
+                } else {
                     return static::newInstance($namespace, $componentName);
                 }
             }
-        }
-        else if(null !== $componentName)
-        {
-            if(!isset(static::$nameMap[$componentName], static::$mains[static::$nameMap[$componentName]]))
-            {
+        } elseif (null !== $componentName) {
+            if (!isset(static::$nameMap[$componentName], static::$mains[static::$nameMap[$componentName]])) {
                 return null;
             }
+
             return static::$mains[static::$nameMap[$componentName]];
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     /**
      * 获取所有Main对象
+     *
      * @return \Imi\Main\BaseMain[]
      */
     public static function getMains()
@@ -70,26 +60,26 @@ abstract class Helper
 
     /**
      * 获取项目Main对象
+     *
      * @return \Imi\Main\BaseMain[]
      */
     public static function getAppMains()
     {
         $mains = static::$mains;
         unset($mains['Imi']);
+
         return $mains;
     }
 
     private static function newInstance($namespace, $componentName)
     {
-        $className = $namespace . '\\Main';
-        if(class_exists($className))
-        {
+        $className = $namespace.'\\Main';
+        if (class_exists($className)) {
             static::$mains[$namespace] = new $className($componentName);
             static::$nameMap[$componentName] = $namespace;
+
             return static::$mains[$namespace];
-        }
-        else
-        {
+        } else {
             return null;
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Imi\Test;
 
 use PHPUnit\Framework\TestCase;
@@ -11,38 +12,35 @@ abstract class BaseTest extends TestCase
     protected function go($callable, $finally = null)
     {
         $throwable = null;
-        $cid = imigo(function() use($callable, &$throwable){
+        $cid = imigo(function () use ($callable, &$throwable) {
             try {
                 $callable();
-            } catch(\Throwable $th) {
+            } catch (\Throwable $th) {
                 $throwable = $th;
             }
         });
-        while(Coroutine::exists($cid))
-        {
+        while (Coroutine::exists($cid)) {
             usleep(10000);
         }
-        if($finally)
-        {
+        if ($finally) {
             $finally();
         }
-        if($throwable)
-        {
+        if ($throwable) {
             throw $throwable;
         }
     }
 
     protected function php($phpFile, $args = '')
     {
-        $cmd = PHP_BINARY . " {$phpFile} {$args}";
+        $cmd = PHP_BINARY." {$phpFile} {$args}";
+
         return `{$cmd}`;
     }
 
     public function startTest()
     {
         static $run = false;
-        if(!$run)
-        {
+        if (!$run) {
             $run = true;
             $this->__startTest();
         }
@@ -50,7 +48,5 @@ abstract class BaseTest extends TestCase
 
     public function __startTest()
     {
-
     }
-
 }

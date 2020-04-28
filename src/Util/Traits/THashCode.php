@@ -1,10 +1,11 @@
 <?php
+
 namespace Imi\Util\Traits;
 
 trait THashCode
 {
     /**
-     * hashCode
+     * hashCode.
      *
      * @var string
      */
@@ -19,5 +20,4 @@ trait THashCode
 
         return $hashCode;
     }
-    
 }

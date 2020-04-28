@@ -1,17 +1,20 @@
 <?php
+
 namespace Imi\Server\DataParser;
 
-use Imi\RequestContext;
 use Imi\ConnectContext;
+use Imi\RequestContext;
 
 /**
- * 数据处理器
+ * 数据处理器.
  */
 class DataParser
 {
     /**
-     * 编码为存储格式
+     * 编码为存储格式.
+     *
      * @param mixed $data
+     *
      * @return mixed
      */
     public function encode($data)
@@ -20,8 +23,10 @@ class DataParser
     }
 
     /**
-     * 解码为php变量
+     * 解码为php变量.
+     *
      * @param mixed $data
+     *
      * @return mixed
      */
     public function decode($data)
@@ -30,7 +35,7 @@ class DataParser
     }
 
     /**
-     * 获取处理器类
+     * 获取处理器类.
      *
      * @return string
      */
@@ -38,22 +43,16 @@ class DataParser
     {
         $requestContext = RequestContext::getContext();
         $server = $requestContext['server'] ?? null;
-        if($server instanceof \Imi\Server\WebSocket\Server)
-        {
-            if(!($requestContext['fd'] ?? null))
-            {
+        if ($server instanceof \Imi\Server\WebSocket\Server) {
+            if (!($requestContext['fd'] ?? null)) {
                 return JsonObjectParser::class;
             }
+
             return ConnectContext::get('httpRouteResult')->wsConfig->parserClass ?? JsonObjectParser::class;
-        }
-        else if($server instanceof \Imi\Server\TcpServer\Server || $server instanceof \Imi\Server\UdpServer\Server)
-        {
+        } elseif ($server instanceof \Imi\Server\TcpServer\Server || $server instanceof \Imi\Server\UdpServer\Server) {
             return $server->getConfig()['dataParser'] ?? JsonObjectParser::class;
-        }
-        else
-        {
+        } else {
             return JsonObjectParser::class;
         }
     }
-
 }

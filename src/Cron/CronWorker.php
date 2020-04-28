@@ -1,12 +1,14 @@
 <?php
+
 namespace Imi\Cron;
 
-use Imi\Bean\Annotation\Bean;
 use Imi\Aop\Annotation\Inject;
+use Imi\Bean\Annotation\Bean;
 use Imi\Cron\Traits\TWorkerReport;
 
 /**
- * 定时任务工作类
+ * 定时任务工作类.
+ *
  * @Bean("CronWorker")
  */
 class CronWorker
@@ -15,7 +17,7 @@ class CronWorker
 
     /**
      * @Inject("CronManager")
-     * 
+     *
      * @var \Imi\Cron\CronManager
      */
     protected $cronManager;
@@ -24,40 +26,38 @@ class CronWorker
      * 执行任务
      *
      * @param string $id
-     * @param mixed $data
+     * @param mixed  $data
+     *
      * @return mixed
      */
     public function exec($id, $data)
     {
         $message = '';
+
         try {
             $task = $this->cronManager->getTask($id);
-            if(!$task)
-            {
+            if (!$task) {
                 throw new \RuntimeException(sprintf('Can not found task %s', $id));
             }
             $taskCallable = $task->getTask();
-            if(is_callable($taskCallable))
-            {
+            if (is_callable($taskCallable)) {
                 try {
                     $taskCallable($id, $data);
                     $success = true;
-                } catch(\Throwable $th) {
+                } catch (\Throwable $th) {
                     throw new \RuntimeException(sprintf('Task %s execution failed, message: %s', $id, $th->getMessage()), $th->getCode(), $th);
                 }
-            }
-            else
-            {
+            } else {
                 throw new \RuntimeException(sprintf('Task %s does not a callable', $id));
             }
             $success = true;
-        } catch(\Throwable $th) {
+        } catch (\Throwable $th) {
             $success = false;
             $message = $th->getMessage();
+
             throw $th;
         } finally {
             $this->reportCronResult($id, $success, $message);
         }
     }
-
 }

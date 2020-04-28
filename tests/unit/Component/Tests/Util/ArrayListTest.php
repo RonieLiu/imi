@@ -1,9 +1,10 @@
 <?php
+
 namespace Imi\Test\Component\Tests\Util;
 
 use Imi\Test\BaseTest;
-use Imi\Util\ArrayList;
 use Imi\Test\Component\Util\ArrayList\TestArrayListItem;
+use Imi\Util\ArrayList;
 
 /**
  * @testdox Imi\Util\ArrayList
@@ -14,10 +15,10 @@ class ArrayListTest extends BaseTest
     {
         try {
             new ArrayList(TestArrayListItem::class, [
-                1
+                1,
             ]);
             $this->assertTrue(false, 'ArrayList __construct set list not check type');
-        } catch(\Throwable $th) {
+        } catch (\Throwable $th) {
             $this->assertTrue(true);
         }
     }
@@ -25,15 +26,13 @@ class ArrayListTest extends BaseTest
     public function testArrayList()
     {
         $list = [];
-        for($i = 1; $i <= 3; ++$i)
-        {
-            $list[] = new TestArrayListItem($i, 'imi-' . $i);
+        for ($i = 1; $i <= 3; $i++) {
+            $list[] = new TestArrayListItem($i, 'imi-'.$i);
         }
         $arrayList = new ArrayList(TestArrayListItem::class, $list);
 
         // foreach
-        foreach($arrayList as $k => $v)
-        {
+        foreach ($arrayList as $k => $v) {
             $this->assertEquals($list[$k], $v);
         }
 
@@ -55,7 +54,7 @@ class ArrayListTest extends BaseTest
         try {
             $arrayList[1] = null;
             $this->assertTrue(false, 'ArrayList set item not check type');
-        } catch(\Throwable $th) {
+        } catch (\Throwable $th) {
             $this->assertTrue(true);
         }
         $arrayList[1] = new TestArrayListItem(100, 'imi-100');
@@ -75,7 +74,5 @@ class ArrayListTest extends BaseTest
         // clear
         $arrayList->clear();
         $this->assertEquals(0, $arrayList->count());
-
     }
-
 }

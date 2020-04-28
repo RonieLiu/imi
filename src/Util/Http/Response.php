@@ -1,25 +1,28 @@
 <?php
+
 namespace Imi\Util\Http;
 
-use Psr\Http\Message\ResponseInterface;
 use Imi\Util\Http\Consts\StatusCode;
+use Psr\Http\Message\ResponseInterface;
 
 class Response extends AbstractMessage implements ResponseInterface
 {
     /**
      * 状态码
+     *
      * @var int
      */
     protected $statusCode;
 
     /**
-     * 状态码原因短语
+     * 状态码原因短语.
+     *
      * @var string
      */
     protected $reasonPhrase;
 
     /**
-     * Trailer 列表
+     * Trailer 列表.
      *
      * @var array
      */
@@ -58,25 +61,26 @@ class Response extends AbstractMessage implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @param int $code The 3-digit integer result code to set.
+     *
+     * @param int    $code         The 3-digit integer result code to set.
      * @param string $reasonPhrase The reason phrase to use with the
-     *     provided status code; if none is provided, implementations MAY
-     *     use the defaults as suggested in the HTTP specification.
-     * @return static
+     *                             provided status code; if none is provided, implementations MAY
+     *                             use the defaults as suggested in the HTTP specification.
+     *
      * @throws \InvalidArgumentException For invalid status code arguments.
+     *
+     * @return static
      */
     public function withStatus($code, $reasonPhrase = '')
     {
         $self = clone $this;
         $self->statusCode = $code;
-        if('' === $reasonPhrase)
-        {
+        if ('' === $reasonPhrase) {
             $self->reasonPhrase = StatusCode::getReasonPhrase($code);
-        }
-        else
-        {
+        } else {
             $self->reasonPhrase = $reasonPhrase;
         }
+
         return $self;
     }
 
@@ -91,6 +95,7 @@ class Response extends AbstractMessage implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     *
      * @return string Reason phrase; must return an empty string if none present.
      */
     public function getReasonPhrase()
@@ -99,8 +104,8 @@ class Response extends AbstractMessage implements ResponseInterface
     }
 
     /**
-     * 获取 Trailer 列表
-     * 
+     * 获取 Trailer 列表.
+     *
      * @return array
      */
     public function getTrailers()
@@ -109,9 +114,10 @@ class Response extends AbstractMessage implements ResponseInterface
     }
 
     /**
-     * Trailer 是否存在
+     * Trailer 是否存在.
      *
      * @param string $name
+     *
      * @return bool
      */
     public function hasTrailer($name)
@@ -121,8 +127,9 @@ class Response extends AbstractMessage implements ResponseInterface
 
     /**
      * 获取 Trailer 值
-     * 
+     *
      * @param string $name
+     *
      * @return string|null
      */
     public function getTrailer($name)
@@ -131,17 +138,18 @@ class Response extends AbstractMessage implements ResponseInterface
     }
 
     /**
-     * 获取 Trailer
-     * 
+     * 获取 Trailer.
+     *
      * @param string $name
      * @param string $value
+     *
      * @return static
      */
     public function withTrailer($name, $value)
     {
         $self = clone $this;
         $self->trailers[$name] = $value;
+
         return $self;
     }
-
 }
